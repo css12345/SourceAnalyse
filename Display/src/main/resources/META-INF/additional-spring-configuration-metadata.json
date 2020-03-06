@@ -1,0 +1,19 @@
+{"properties": [
+  {
+    "name": "methodDeclaration.includedNodeTypes.location",
+    "type": "java.lang.String",
+    "description": "A white list file location to filter ASTNode, must starts with 'classpath:' or 'file:'.It can be omitted.",
+    "defaultValue": "classpath:includedNodeTypes.txt in JDTParse-0.0.1-SNAPSHOT.jar"
+  },
+  {
+    "name": "gradleTasks.location",
+    "type": "java.lang.String",
+    "description": "A gradle tasks file location to get all dependencies path in a project, must starts with 'classpath:' or 'file:'.It can be omitted.",
+    "defaultValue": "classpath:gradleTasks.txt in JDTParse-0.0.1-SNAPSHOT.jar"
+  },
+  {
+    "name": "GRADLE_USER_HOME",
+    "type": "java.lang.String",
+    "description": "A directory absolute path for GRADLE_USER_HOME.It can be omitted."
+  }
+]}
