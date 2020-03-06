@@ -1,0 +1,15 @@
+target/
+bin/
+.sts4-cache
+log.txt
+
+# Eclipse
+.classpath
+.project
+.settings
+
+# IDEA
+*.iml
+*.ipr
+*.iws
+.idea
