@@ -1,0 +1,33 @@
+task getInformationOfProject {
+	doLast {
+		ext.printProjectInfo = { proj->
+			println proj.projectDir
+			
+			Set<File> dependencySet = []
+			proj.configurations.all.each {
+				if (it.isCanBeResolved())
+					dependencySet.addAll(it.resolve())
+			}
+			ArrayList<File> dependencyList = new ArrayList<>(dependencySet)
+			print 'dependencies: ';
+			for (int i = 0; i < dependencyList.size(); i++) {
+				print dependencyList.get(i).getAbsolutePath()
+				if (i != dependencyList.size() - 1)
+					print ','
+			}
+			println ''
+			
+			ArrayList<Project> subprojectList = new ArrayList<>(proj.subprojects)
+			print 'subprojects: ';
+			for (int i = 0; i < subprojectList.size(); i++) {
+				print subprojectList.get(i).getPath()
+				if (i != subprojectList.size() - 1)
+					print ','
+			}
+			println ''
+		}
+	
+		String argument = '%s'
+		printProjectInfo(project(argument))
+	}
+}
