@@ -7,20 +7,24 @@
 		<artifactId>SourceAnalyse</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>Display</artifactId>
-	
-	
+	<artifactId>Persistence</artifactId>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
+			<artifactId>spring-boot-starter-data-neo4j</artifactId>
 		</dependency>
-	
+		
 		<dependency>
 			<groupId>io.github.css12345</groupId>
 			<artifactId>JDTParse</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>
