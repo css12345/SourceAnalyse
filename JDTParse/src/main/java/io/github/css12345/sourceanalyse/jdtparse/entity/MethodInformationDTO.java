@@ -36,7 +36,7 @@ public class MethodInformationDTO {
 	/**
 	 * {@link MethodInformation#nodes} 's type and content
 	 */
-	private List<MethodInvocationInformation> nodes;
+	private List<ASTNodeInformation> nodes;
 
 	/**
 	 * @see MethodInformation#edges
@@ -66,15 +66,15 @@ public class MethodInformationDTO {
 		}
 	}
 
-	private List<MethodInvocationInformation> generateNodes(List<ASTNode> nodes) {
-		List<MethodInvocationInformation> methodInvocationInformations = new ArrayList<>();
+	private List<ASTNodeInformation> generateNodes(List<ASTNode> nodes) {
+		List<ASTNodeInformation> astNodeInformations = new ArrayList<>();
 		for (ASTNode node : nodes) {
-			MethodInvocationInformation methodInvocationInformation = new MethodInvocationInformation();
-			methodInvocationInformation.setContent(node.toString());
-			methodInvocationInformation.setType(node.getClass().getSimpleName());
-			methodInvocationInformations.add(methodInvocationInformation);
+			ASTNodeInformation astNodeInformation = new ASTNodeInformation();
+			astNodeInformation.setContent(node.toString());
+			astNodeInformation.setType(node.getClass().getSimpleName());
+			astNodeInformations.add(astNodeInformation);
 		}
-		return methodInvocationInformations;
+		return astNodeInformations;
 	}
 
 	private String generateBriefMethodInformation(IMethodBinding methodBinding) {
@@ -113,7 +113,7 @@ public class MethodInformationDTO {
 		return methodInvocationsMap;
 	}
 
-	public List<MethodInvocationInformation> getNodes() {
+	public List<ASTNodeInformation> getNodes() {
 		return nodes;
 	}
 
@@ -133,7 +133,7 @@ public class MethodInformationDTO {
 		this.methodInvocationsMap = methodInvocationsMap;
 	}
 
-	public void setOfNodes(List<MethodInvocationInformation> nodes) {
+	public void setOfNodes(List<ASTNodeInformation> nodes) {
 		this.nodes = nodes;
 	}
 

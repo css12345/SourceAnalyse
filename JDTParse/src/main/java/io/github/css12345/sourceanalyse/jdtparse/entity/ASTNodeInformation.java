@@ -1,6 +1,6 @@
 package io.github.css12345.sourceanalyse.jdtparse.entity;
 
-public class MethodInvocationInformation {
+public class ASTNodeInformation {
 	private String content;
 
 	private String type;
@@ -23,7 +23,7 @@ public class MethodInvocationInformation {
 
 	@Override
 	public String toString() {
-		return "MethodInvocationInformation [content=" + content + ", type=" + type + "]";
+		return "ASTNodeInformation [content=" + content + ", type=" + type + "]";
 	}
 
 }
