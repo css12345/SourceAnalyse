@@ -79,7 +79,7 @@ public class FileInformationDTO {
 		stringBuilder.append('\n');
 		for (MethodInformationDTO methodInformationDTO : hasMethods)
 			stringBuilder.append(methodInformationDTO);
-		stringBuilder.append("________________________________________________________");
+		stringBuilder.append("________________________________________________________\n");
 		return stringBuilder.toString();
 	}
 

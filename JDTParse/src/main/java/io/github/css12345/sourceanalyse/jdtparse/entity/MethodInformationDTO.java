@@ -148,7 +148,15 @@ public class MethodInformationDTO {
 		stringBuilder.append("version:" + version + "\n");
 		stringBuilder.append("briefMethodInformation:" + briefMethodInformation + "\n");
 		stringBuilder.append("methodInvocationsMap:" + methodInvocationsMap + "\n");
-		stringBuilder.append("nodes:" + nodes + "\n");
+		stringBuilder.append("nodes:");
+		for (int i = 0; i < nodes.size(); i++) {
+			ASTNodeInformation astNodeInformation = nodes.get(i);
+			stringBuilder.append(astNodeInformation.getType());
+			if (i < nodes.size() - 1)
+				stringBuilder.append(",");
+			else 
+				stringBuilder.append("\n");
+		}
 
 		stringBuilder.append("edges:" + edges + "\n");
 

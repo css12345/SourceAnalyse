@@ -1,0 +1,337 @@
+{
+  "filePath" : "D:\\tmp\\0.0.1\\download\\src\\main\\java\\com\\example\\download\\KMP算法.java",
+  "rootProjectPath" : "D:\\tmp\\0.0.1\\download",
+  "version" : "0.0.1",
+  "hasMethods" : [ {
+    "filePath" : "D:\\tmp\\0.0.1\\download\\src\\main\\java\\com\\example\\download\\KMP算法.java",
+    "version" : "0.0.1",
+    "briefMethodInformation" : "main-com.example.download.KMP算法-java.lang.String[]-",
+    "methodInvocationsMap" : {
+      "16" : "D:\\tmp\\0.0.1\\download\\src\\main\\java\\com\\example\\download\\KMP算法.java-calculatePatternOccurTimesByKMP-com.example.download.KMP算法-java.lang.String-java.lang.String-"
+    },
+    "nodes" : [ {
+      "content" : "String[] args",
+      "type" : "SingleVariableDeclaration"
+    }, {
+      "content" : "new Scanner(System.in)",
+      "type" : "ClassInstanceCreation"
+    }, {
+      "content" : "input=new Scanner(System.in)",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "Scanner input=new Scanner(System.in);\n",
+      "type" : "VariableDeclarationStatement"
+    }, {
+      "content" : "input.nextInt()",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "N=input.nextInt()",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "int N=input.nextInt();\n",
+      "type" : "VariableDeclarationStatement"
+    }, {
+      "content" : "input.nextLine()",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "input.nextLine();\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "N-- > 0",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "input.nextLine()",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "pattern=input.nextLine()",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "String pattern=input.nextLine();\n",
+      "type" : "VariableDeclarationStatement"
+    }, {
+      "content" : "input.nextLine()",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "source=input.nextLine()",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "String source=input.nextLine();\n",
+      "type" : "VariableDeclarationStatement"
+    }, {
+      "content" : "calculatePatternOccurTimesByKMP(pattern,source)",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "System.out.println(calculatePatternOccurTimesByKMP(pattern,source))",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "System.out.println(calculatePatternOccurTimesByKMP(pattern,source));\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "{\n  String pattern=input.nextLine();\n  String source=input.nextLine();\n  System.out.println(calculatePatternOccurTimesByKMP(pattern,source));\n}\n",
+      "type" : "Block"
+    }, {
+      "content" : "while (N-- > 0) {\n  String pattern=input.nextLine();\n  String source=input.nextLine();\n  System.out.println(calculatePatternOccurTimesByKMP(pattern,source));\n}\n",
+      "type" : "WhileStatement"
+    }, {
+      "content" : "input.close()",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "input.close();\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "{\n  Scanner input=new Scanner(System.in);\n  int N=input.nextInt();\n  input.nextLine();\n  while (N-- > 0) {\n    String pattern=input.nextLine();\n    String source=input.nextLine();\n    System.out.println(calculatePatternOccurTimesByKMP(pattern,source));\n  }\n  input.close();\n}\n",
+      "type" : "Block"
+    }, {
+      "content" : "public static void main(String[] args){\n  Scanner input=new Scanner(System.in);\n  int N=input.nextInt();\n  input.nextLine();\n  while (N-- > 0) {\n    String pattern=input.nextLine();\n    String source=input.nextLine();\n    System.out.println(calculatePatternOccurTimesByKMP(pattern,source));\n  }\n  input.close();\n}\n",
+      "type" : "MethodDeclaration"
+    } ],
+    "edges" : [ [ ], [ ], [ 1 ], [ 2 ], [ ], [ 4 ], [ 5 ], [ ], [ 7 ], [ ], [ ], [ 10 ], [ 11 ], [ ], [ 13 ], [ 14 ], [ ], [ 16 ], [ 17 ], [ 12, 15, 18 ], [ 9, 19 ], [ ], [ 21 ], [ 3, 6, 8, 20, 22 ], [ 0, 23 ] ]
+  }, {
+    "filePath" : "D:\\tmp\\0.0.1\\download\\src\\main\\java\\com\\example\\download\\KMP算法.java",
+    "version" : "0.0.1",
+    "briefMethodInformation" : "calculatePatternOccurTimesByKMP-com.example.download.KMP算法-java.lang.String-java.lang.String-",
+    "methodInvocationsMap" : {
+      "12" : "D:\\tmp\\0.0.1\\download\\src\\main\\java\\com\\example\\download\\KMP算法.java-buildNext-com.example.download.KMP算法-java.lang.String-"
+    },
+    "nodes" : [ {
+      "content" : "String pattern",
+      "type" : "SingleVariableDeclaration"
+    }, {
+      "content" : "String source",
+      "type" : "SingleVariableDeclaration"
+    }, {
+      "content" : "pattern == null",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "pattern.equals(\"\")",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "pattern == null || pattern.equals(\"\")",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "return 0;\n",
+      "type" : "ReturnStatement"
+    }, {
+      "content" : "if (pattern == null || pattern.equals(\"\")) return 0;\n",
+      "type" : "IfStatement"
+    }, {
+      "content" : "source == null",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "source.equals(\"\")",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "source == null || source.equals(\"\")",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "return 0;\n",
+      "type" : "ReturnStatement"
+    }, {
+      "content" : "if (source == null || source.equals(\"\")) return 0;\n",
+      "type" : "IfStatement"
+    }, {
+      "content" : "buildNext(pattern)",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "next=buildNext(pattern)",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "int[] next=buildNext(pattern);\n",
+      "type" : "VariableDeclarationStatement"
+    }, {
+      "content" : "times=0",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "int times=0;\n",
+      "type" : "VariableDeclarationStatement"
+    }, {
+      "content" : "i=0",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "j=0",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "int i=0, j=0",
+      "type" : "VariableDeclarationExpression"
+    }, {
+      "content" : "source.length()",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "i < source.length()",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "source.charAt(i)",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "pattern.charAt(j)",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "source.charAt(i) == pattern.charAt(j)",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "i++;\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "j++;\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "{\n  i++;\n  j++;\n}\n",
+      "type" : "Block"
+    }, {
+      "content" : "j == 0",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "i++;\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "j - 1",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "j=next[j - 1]",
+      "type" : "Assignment"
+    }, {
+      "content" : "j=next[j - 1];\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "if (j == 0) i++;\n else j=next[j - 1];\n",
+      "type" : "IfStatement"
+    }, {
+      "content" : "{\n  if (j == 0)   i++;\n else   j=next[j - 1];\n}\n",
+      "type" : "Block"
+    }, {
+      "content" : "if (source.charAt(i) == pattern.charAt(j)) {\n  i++;\n  j++;\n}\n else {\n  if (j == 0)   i++;\n else   j=next[j - 1];\n}\n",
+      "type" : "IfStatement"
+    }, {
+      "content" : "pattern.length()",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "j == pattern.length()",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "times++;\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "j - 1",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "j=next[j - 1]",
+      "type" : "Assignment"
+    }, {
+      "content" : "j=next[j - 1];\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "{\n  times++;\n  j=next[j - 1];\n}\n",
+      "type" : "Block"
+    }, {
+      "content" : "if (j == pattern.length()) {\n  times++;\n  j=next[j - 1];\n}\n",
+      "type" : "IfStatement"
+    }, {
+      "content" : "{\n  if (source.charAt(i) == pattern.charAt(j)) {\n    i++;\n    j++;\n  }\n else {\n    if (j == 0)     i++;\n else     j=next[j - 1];\n  }\n  if (j == pattern.length()) {\n    times++;\n    j=next[j - 1];\n  }\n}\n",
+      "type" : "Block"
+    }, {
+      "content" : "for (int i=0, j=0; i < source.length(); ) {\n  if (source.charAt(i) == pattern.charAt(j)) {\n    i++;\n    j++;\n  }\n else {\n    if (j == 0)     i++;\n else     j=next[j - 1];\n  }\n  if (j == pattern.length()) {\n    times++;\n    j=next[j - 1];\n  }\n}\n",
+      "type" : "ForStatement"
+    }, {
+      "content" : "return times;\n",
+      "type" : "ReturnStatement"
+    }, {
+      "content" : "{\n  if (pattern == null || pattern.equals(\"\"))   return 0;\n  if (source == null || source.equals(\"\"))   return 0;\n  int[] next=buildNext(pattern);\n  int times=0;\n  for (int i=0, j=0; i < source.length(); ) {\n    if (source.charAt(i) == pattern.charAt(j)) {\n      i++;\n      j++;\n    }\n else {\n      if (j == 0)       i++;\n else       j=next[j - 1];\n    }\n    if (j == pattern.length()) {\n      times++;\n      j=next[j - 1];\n    }\n  }\n  return times;\n}\n",
+      "type" : "Block"
+    }, {
+      "content" : "private static int calculatePatternOccurTimesByKMP(String pattern,String source){\n  if (pattern == null || pattern.equals(\"\"))   return 0;\n  if (source == null || source.equals(\"\"))   return 0;\n  int[] next=buildNext(pattern);\n  int times=0;\n  for (int i=0, j=0; i < source.length(); ) {\n    if (source.charAt(i) == pattern.charAt(j)) {\n      i++;\n      j++;\n    }\n else {\n      if (j == 0)       i++;\n else       j=next[j - 1];\n    }\n    if (j == pattern.length()) {\n      times++;\n      j=next[j - 1];\n    }\n  }\n  return times;\n}\n",
+      "type" : "MethodDeclaration"
+    } ],
+    "edges" : [ [ ], [ ], [ ], [ ], [ 2, 3 ], [ ], [ 4, 5 ], [ ], [ ], [ 7, 8 ], [ ], [ 9, 10 ], [ ], [ 12 ], [ 13 ], [ ], [ 15 ], [ ], [ ], [ 17, 18 ], [ ], [ 20 ], [ ], [ ], [ 22, 23 ], [ ], [ ], [ 25, 26 ], [ ], [ ], [ ], [ ], [ 31 ], [ 28, 29, 32 ], [ 33 ], [ 24, 27, 34 ], [ ], [ 36 ], [ ], [ ], [ ], [ 40 ], [ 38, 41 ], [ 37, 42 ], [ 35, 43 ], [ 19, 21, 44 ], [ ], [ 6, 11, 14, 16, 45, 46 ], [ 0, 1, 47 ] ]
+  }, {
+    "filePath" : "D:\\tmp\\0.0.1\\download\\src\\main\\java\\com\\example\\download\\KMP算法.java",
+    "version" : "0.0.1",
+    "briefMethodInformation" : "buildNext-com.example.download.KMP算法-java.lang.String-",
+    "methodInvocationsMap" : { },
+    "nodes" : [ {
+      "content" : "String pattern",
+      "type" : "SingleVariableDeclaration"
+    }, {
+      "content" : "pattern.length()",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "next=new int[pattern.length()]",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "int[] next=new int[pattern.length()];\n",
+      "type" : "VariableDeclarationStatement"
+    }, {
+      "content" : "i=1",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "now=0",
+      "type" : "VariableDeclarationFragment"
+    }, {
+      "content" : "int i=1, now=0",
+      "type" : "VariableDeclarationExpression"
+    }, {
+      "content" : "i < next.length",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "pattern.charAt(i)",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "pattern.charAt(now)",
+      "type" : "MethodInvocation"
+    }, {
+      "content" : "pattern.charAt(i) == pattern.charAt(now)",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "++now",
+      "type" : "PrefixExpression"
+    }, {
+      "content" : "next[i++]=++now",
+      "type" : "Assignment"
+    }, {
+      "content" : "next[i++]=++now;\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "now == 0",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "next[i++]=0",
+      "type" : "Assignment"
+    }, {
+      "content" : "next[i++]=0;\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "now - 1",
+      "type" : "InfixExpression"
+    }, {
+      "content" : "now=next[now - 1]",
+      "type" : "Assignment"
+    }, {
+      "content" : "now=next[now - 1];\n",
+      "type" : "ExpressionStatement"
+    }, {
+      "content" : "if (now == 0) next[i++]=0;\n else now=next[now - 1];\n",
+      "type" : "IfStatement"
+    }, {
+      "content" : "{\n  if (now == 0)   next[i++]=0;\n else   now=next[now - 1];\n}\n",
+      "type" : "Block"
+    }, {
+      "content" : "if (pattern.charAt(i) == pattern.charAt(now)) next[i++]=++now;\n else {\n  if (now == 0)   next[i++]=0;\n else   now=next[now - 1];\n}\n",
+      "type" : "IfStatement"
+    }, {
+      "content" : "{\n  if (pattern.charAt(i) == pattern.charAt(now))   next[i++]=++now;\n else {\n    if (now == 0)     next[i++]=0;\n else     now=next[now - 1];\n  }\n}\n",
+      "type" : "Block"
+    }, {
+      "content" : "for (int i=1, now=0; i < next.length; ) {\n  if (pattern.charAt(i) == pattern.charAt(now))   next[i++]=++now;\n else {\n    if (now == 0)     next[i++]=0;\n else     now=next[now - 1];\n  }\n}\n",
+      "type" : "ForStatement"
+    }, {
+      "content" : "return next;\n",
+      "type" : "ReturnStatement"
+    }, {
+      "content" : "{\n  int[] next=new int[pattern.length()];\n  for (int i=1, now=0; i < next.length; ) {\n    if (pattern.charAt(i) == pattern.charAt(now))     next[i++]=++now;\n else {\n      if (now == 0)       next[i++]=0;\n else       now=next[now - 1];\n    }\n  }\n  return next;\n}\n",
+      "type" : "Block"
+    }, {
+      "content" : "private static int[] buildNext(String pattern){\n  int[] next=new int[pattern.length()];\n  for (int i=1, now=0; i < next.length; ) {\n    if (pattern.charAt(i) == pattern.charAt(now))     next[i++]=++now;\n else {\n      if (now == 0)       next[i++]=0;\n else       now=next[now - 1];\n    }\n  }\n  return next;\n}\n",
+      "type" : "MethodDeclaration"
+    } ],
+    "edges" : [ [ ], [ ], [ ], [ 2 ], [ ], [ ], [ 4, 5 ], [ ], [ ], [ ], [ 8, 9 ], [ ], [ 11 ], [ 12 ], [ ], [ ], [ 15 ], [ ], [ ], [ 18 ], [ 14, 16, 19 ], [ 20 ], [ 10, 13, 21 ], [ 22 ], [ 6, 7, 23 ], [ ], [ 3, 24, 25 ], [ 0, 26 ] ]
+  } ]
+}
