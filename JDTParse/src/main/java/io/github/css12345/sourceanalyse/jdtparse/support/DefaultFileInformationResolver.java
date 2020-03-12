@@ -12,10 +12,11 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,25 +40,24 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 	public List<FileInformation> getFileInformations(Project project) {
 		Map<String, Project> allProjects = new HashMap<>();
 		addProjects(project, allProjects);
-		
+
 		File rootFile = new File(project.getPath());
 		List<File> suffixLikeJavaFiles = new ArrayList<>();
 		findSuffixLikeJavaFiles(rootFile, suffixLikeJavaFiles);
-		//may be some module did not in root project directory
+		// may be some module did not in root project directory
 		for (String path : allProjects.keySet()) {
 			if (!path.startsWith(project.getPath()))
 				findSuffixLikeJavaFiles(new File(path), suffixLikeJavaFiles);
 		}
-		
+
 		if (logger.isInfoEnabled()) {
 			logger.info("find suffix like java files {}", suffixLikeJavaFiles);
 		}
-		
 
 		List<FileInformation> fileInformations = new ArrayList<>();
 		for (File file : suffixLikeJavaFiles) {
-			if (logger.isInfoEnabled()) {
-				logger.info("start to resolve file {}", file);
+			if (logger.isDebugEnabled()) {
+				logger.debug("start to resolve file {}", file);
 			}
 
 			Project closestProject;
@@ -80,8 +80,8 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 			fileInformation.setMethodInformations(methodInformations);
 			fileInformations.add(fileInformation);
 
-			if (logger.isInfoEnabled()) {
-				logger.info("resolved file information is {}", fileInformation);
+			if (logger.isDebugEnabled()) {
+				logger.debug("resolved file information is {}", fileInformation);
 			}
 		}
 		return fileInformations;
@@ -122,16 +122,18 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 		methodDeclarationVisitor.setIncludedNodeTypes(readFromParams());
 		methodDeclarationVisitor.setValidPackageNames(classInformation.getWantedPackageNames());
 
-		compilationUnit.accept(methodDeclarationVisitor);
-		
 		compilationUnit.accept(new ASTVisitor() {
 			@Override
-			public boolean visit(TypeDeclaration typeDeclaration) {
-				String classQualifiedName = typeDeclaration.resolveBinding().getQualifiedName();
-				FileInformation.getClassQualifiedNameLocationMap().put(classQualifiedName, classInformation.getPath());
-				return true;
+			public void postVisit(ASTNode astNode) {
+				if (astNode instanceof AbstractTypeDeclaration) {
+					AbstractTypeDeclaration abstractTypeDeclaration = (AbstractTypeDeclaration) astNode;
+					String classQualifiedName = abstractTypeDeclaration.resolveBinding().getQualifiedName();
+					FileInformation.getClassQualifiedNameLocationMap().put(classQualifiedName, classInformation.getPath());
+				}
 			}
 		});
+		
+		compilationUnit.accept(methodDeclarationVisitor);
 		return methodDeclarationVisitor.getMethodInformations();
 	}
 

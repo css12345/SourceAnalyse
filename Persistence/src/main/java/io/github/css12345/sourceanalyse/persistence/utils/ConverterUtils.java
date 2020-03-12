@@ -50,8 +50,7 @@ public class ConverterUtils {
 	public FileInformation convert(String fileInformationDTOPath) {
 		if (fileInformationCache.containsKey(fileInformationDTOPath)) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("find value {} in file information cache for key {}",
-						fileInformationCache.get(fileInformationDTOPath), fileInformationDTOPath);
+				logger.debug("find value in file information cache for key {}", fileInformationDTOPath);
 			}
 			return fileInformationCache.get(fileInformationDTOPath);
 		}
@@ -78,7 +77,7 @@ public class ConverterUtils {
 				methodInformationDTO.getBriefMethodInformation());
 		if (methodCache.containsKey(key)) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("find value {} in method information cache for key {}", methodCache.get(key), key);
+				logger.debug("find value in method information cache for key {}", key);
 			}
 
 			return methodCache.get(key);
@@ -87,11 +86,21 @@ public class ConverterUtils {
 		Method method = new Method(methodInformationDTO.getFilePath(), methodInformationDTO.getVersion(),
 				methodInformationDTO.getBriefMethodInformation());
 
+		method.setRootNode(generateAstNodes(methodInformationDTO));
+
+		methodCache.put(key, method);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("create value {}, also add it to cache for key {}", method, key);
+		}
+
 		Collection<String> methodInvocations = methodInformationDTO.getMethodInvocationsMap().values();
 		for (String methodInvocationInformation : methodInvocations) {
-			int indexOfFirstSign = methodInvocationInformation.indexOf("-");
-			String location = methodInvocationInformation.substring(0, indexOfFirstSign);
-			String briefMethodInformation = methodInvocationInformation.substring(indexOfFirstSign + 1);
+			final String JAVA_SUFFIX = ".java";
+			int indexOfFirstSign = methodInvocationInformation.indexOf(JAVA_SUFFIX);
+			String location = methodInvocationInformation.substring(0, indexOfFirstSign) + JAVA_SUFFIX;
+			String briefMethodInformation = methodInvocationInformation
+					.substring(indexOfFirstSign + JAVA_SUFFIX.length() + 1);
 
 			FileInformationDTO methodInvocationFileInformationDTO = getFileInformationDTO(location);
 			List<MethodInformationDTO> methodsOfFileInformationDTO = methodInvocationFileInformationDTO.getHasMethods();
@@ -102,22 +111,13 @@ public class ConverterUtils {
 				}
 			}
 		}
-
-		method.setRootNode(generateAstNodes(methodInformationDTO));
-
-		methodCache.put(key, method);
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("create value {}, also add it to cache for key {}", method, key);
-		}
 		return method;
 	}
 
 	private FileInformationDTO getFileInformationDTO(String fileInformationDTOPath) {
 		if (fileInformationDTOCache.containsKey(fileInformationDTOPath)) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("find value {} in file informationDTO cache for key {}",
-						fileInformationDTOCache.get(fileInformationDTOPath), fileInformationDTOPath);
+				logger.debug("find value in file informationDTO cache for key {}", fileInformationDTOPath);
 			}
 			return fileInformationDTOCache.get(fileInformationDTOPath);
 		}

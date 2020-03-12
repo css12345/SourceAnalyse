@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation;
 import io.github.css12345.sourceanalyse.jdtparse.exception.BindingResolveException;
 
 /**
@@ -67,9 +68,18 @@ public class MethodInvocationVisitor extends ASTVisitor {
 	public boolean visit(MethodInvocation node) {
 		IMethodBinding binding = node.resolveMethodBinding();
 		if (binding != null) {
+			//skip annotation invocation
+			if (binding.isAnnotationMember())
+				return true;
+			
 			ITypeBinding declaringClassTypeBinding = binding.getDeclaringClass();
 
 			String qualifiedName = declaringClassTypeBinding.getQualifiedName();
+			
+			//the invocated class must also be resolved
+			if (!FileInformation.getClassQualifiedNameLocationMap().containsKey(qualifiedName)) {
+				return true;
+			}
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("{}'s declaring class qualified name is {}", node, qualifiedName);
