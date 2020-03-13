@@ -55,11 +55,8 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 		}
 
 		List<FileInformation> fileInformations = new ArrayList<>();
+		List<ClassInformation> classInformations = new ArrayList<>();
 		for (File file : suffixLikeJavaFiles) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("start to resolve file {}", file);
-			}
-
 			Project closestProject;
 			try {
 				closestProject = findClosetProject(file.getCanonicalPath(), allProjects);
@@ -68,14 +65,36 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
+			
 			ClassInformation classInformation = new ClassInformation(file.getAbsolutePath(), closestProject);
+			classInformations.add(classInformation);
+		}
+		
+		for (ClassInformation classInformation : classInformations) {
+			CompilationUnit compilationUnit = setUpCompilationUnit(classInformation);
+			compilationUnit.accept(new ASTVisitor() {
+				@Override
+				public void postVisit(ASTNode astNode) {
+					if (astNode instanceof AbstractTypeDeclaration) {
+						AbstractTypeDeclaration abstractTypeDeclaration = (AbstractTypeDeclaration) astNode;
+						String classQualifiedName = abstractTypeDeclaration.resolveBinding().getQualifiedName();
+						FileInformation.getClassQualifiedNameLocationMap().put(classQualifiedName, classInformation.getPath());
+					}
+				}
+			});
+		}
+
+		for (ClassInformation classInformation : classInformations) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("start to resolve file {}", classInformation.getPath());
+			}
 			if (logger.isDebugEnabled()) {
 				logger.debug("class information is {}", classInformation);
 			}
 			List<MethodInformation> methodInformations = buildASTAndVisitMethodDeclarations(classInformation);
 
 			FileInformation fileInformation = new FileInformation();
-			fileInformation.setFile(file);
+			fileInformation.setFile(new File(classInformation.getPath()));
 			fileInformation.setRootProjectPath(project.getPath());
 			fileInformation.setMethodInformations(methodInformations);
 			fileInformations.add(fileInformation);
@@ -104,6 +123,18 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 	}
 
 	private List<MethodInformation> buildASTAndVisitMethodDeclarations(ClassInformation classInformation) {
+		CompilationUnit compilationUnit = setUpCompilationUnit(classInformation);
+
+		MethodDeclarationVisitor methodDeclarationVisitor = new MethodDeclarationVisitor();
+		methodDeclarationVisitor.setIncludedNodeTypes(readFromParams());
+		methodDeclarationVisitor.setValidPackageNames(classInformation.getWantedPackageNames());
+
+		compilationUnit.accept(methodDeclarationVisitor);
+
+		return methodDeclarationVisitor.getMethodInformations();
+	}
+
+	private CompilationUnit setUpCompilationUnit(ClassInformation classInformation) {
 		@SuppressWarnings("deprecation")
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		Map<String, String> options = JavaCore.getOptions();
@@ -117,24 +148,7 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 				classInformation.getEncodings(), true);
 
 		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
-
-		MethodDeclarationVisitor methodDeclarationVisitor = new MethodDeclarationVisitor();
-		methodDeclarationVisitor.setIncludedNodeTypes(readFromParams());
-		methodDeclarationVisitor.setValidPackageNames(classInformation.getWantedPackageNames());
-
-		compilationUnit.accept(new ASTVisitor() {
-			@Override
-			public void postVisit(ASTNode astNode) {
-				if (astNode instanceof AbstractTypeDeclaration) {
-					AbstractTypeDeclaration abstractTypeDeclaration = (AbstractTypeDeclaration) astNode;
-					String classQualifiedName = abstractTypeDeclaration.resolveBinding().getQualifiedName();
-					FileInformation.getClassQualifiedNameLocationMap().put(classQualifiedName, classInformation.getPath());
-				}
-			}
-		});
-		
-		compilationUnit.accept(methodDeclarationVisitor);
-		return methodDeclarationVisitor.getMethodInformations();
+		return compilationUnit;
 	}
 
 	private void findSuffixLikeJavaFiles(File rootFile, List<File> suffixLikeJavaFiles) {
