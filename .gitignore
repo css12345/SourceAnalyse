@@ -2,6 +2,8 @@ target/
 bin/
 .sts4-cache
 log.txt
+.pydevproject
+__pycache__
 
 # Eclipse
 .classpath

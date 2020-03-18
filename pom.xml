@@ -10,6 +10,7 @@
 		<module>JDTParse</module>
 		<module>Display</module>
 		<module>Persistence</module>
+		<module>SimilarityAnalyse</module>
 	</modules>
 
 	<parent>
