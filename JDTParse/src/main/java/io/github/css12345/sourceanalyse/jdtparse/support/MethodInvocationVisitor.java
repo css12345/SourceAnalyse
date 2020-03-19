@@ -67,11 +67,7 @@ public class MethodInvocationVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(MethodInvocation node) {
 		IMethodBinding binding = node.resolveMethodBinding();
-		if (binding != null) {
-			//skip annotation invocation
-			if (binding.isAnnotationMember())
-				return true;
-			
+		if (binding != null) {			
 			ITypeBinding declaringClassTypeBinding = binding.getDeclaringClass();
 
 			String qualifiedName = declaringClassTypeBinding.getQualifiedName();

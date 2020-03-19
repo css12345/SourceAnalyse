@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
 public class MethodInformation {
-	private MethodDeclaration methodDeclaration;
+	private IMethodBinding methodBinding;
 
 	private List<MethodInvocation> methodInvocations = new ArrayList<>();
 
@@ -16,12 +16,12 @@ public class MethodInformation {
 
 	private List<List<Integer>> edges = new ArrayList<>();
 
-	public MethodDeclaration getMethodDeclaration() {
-		return methodDeclaration;
+	public IMethodBinding getMethodBinding() {
+		return methodBinding;
 	}
 
-	public void setMethodDeclaration(MethodDeclaration methodDeclaration) {
-		this.methodDeclaration = methodDeclaration;
+	public void setMethodBinding(IMethodBinding methodBinding) {
+		this.methodBinding = methodBinding;
 	}
 
 	public List<ASTNode> getNodes() {
@@ -50,7 +50,7 @@ public class MethodInformation {
 
 	@Override
 	public String toString() {
-		return "MethodInformation [methodDeclaration=" + methodDeclaration.getName() + ", methodInvocations="
+		return "MethodInformation [methodDeclaration=" + methodBinding.getName() + ", methodInvocations="
 				+ methodInvocations + ", nodes=" + nodes + ", edges=" + edges + "]";
 	}
 

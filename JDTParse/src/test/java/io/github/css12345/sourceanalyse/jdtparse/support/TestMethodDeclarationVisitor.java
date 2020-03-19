@@ -66,7 +66,7 @@ public class TestMethodDeclarationVisitor {
 
 				for (MethodInformation methodInformation : visitor.getMethodInformations()) {
 					System.out.println("file: " + file.getName() + " method: "
-							+ methodInformation.getMethodDeclaration().getName());
+							+ methodInformation.getMethodBinding().getName());
 					// printMethodInvocations(methodInformation);
 
 					printNodesAndEdges(methodInformation);

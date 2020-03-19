@@ -53,7 +53,7 @@ public class MethodInformationDTO {
 		this.edges = methodInformation.getEdges();
 
 		this.briefMethodInformation = generateBriefMethodInformation(
-				methodInformation.getMethodDeclaration().resolveBinding());
+				methodInformation.getMethodBinding());
 		this.nodes = generateNodes(methodInformation.getNodes());
 
 		for (MethodInvocation methodInvocation : methodInformation.getMethodInvocations()) {

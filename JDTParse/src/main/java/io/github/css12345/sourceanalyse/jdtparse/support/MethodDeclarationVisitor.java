@@ -8,6 +8,8 @@ import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.slf4j.Logger;
@@ -39,35 +41,32 @@ public class MethodDeclarationVisitor extends ASTVisitor {
 	 * parameter, all method information of call node will be saved in this field.
 	 */
 	private List<MethodInformation> methodInformations = new ArrayList<>();
-
+	
 	@Override
-	public boolean visit(MethodDeclaration methodDeclaration) {
+	public void postVisit(ASTNode node) {
+		if (!(node instanceof MethodDeclaration || node instanceof AnnotationTypeMemberDeclaration)) 
+			return;
+		
 		MethodInformation methodInformation = new MethodInformation();
-		methodInformation.setMethodDeclaration(methodDeclaration);
+		IMethodBinding methodBinding = null;
+		if (node instanceof MethodDeclaration)
+			methodBinding = ((MethodDeclaration) node).resolveBinding();
+		else 
+			methodBinding = ((AnnotationTypeMemberDeclaration) node).resolveBinding();
 		
-//		IMethodBinding binding = methodDeclaration.resolveBinding();
-//		if (binding != null) {
-//			ITypeBinding declaringClassTypeBinding = binding.getDeclaringClass();
-//			String qualifiedName = declaringClassTypeBinding.getQualifiedName();
-//			methodInformation.setDeclaringClassQualifiedName(qualifiedName);
-//		} else {
-//			String errorMessage = "an error occur when resolve binding of " + methodDeclaration;
-//			throw new BindingResolveException(errorMessage);
-//		}
+		methodInformation.setMethodBinding(methodBinding);
 
-		
-		methodInformation.setMethodInvocations(getMethodInvocations(methodDeclaration));
-		
-		setNodes(methodDeclaration, methodInformation);
-		
+		methodInformation.setMethodInvocations(getMethodInvocations(node));
+
+		setNodes(node, methodInformation);
+
 		setEdges(methodInformation);
-		
+
 		methodInformations.add(methodInformation);
-		
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("add {} for method information list", methodInformation);
 		}
-		return true;
 	}
 
 	private void setEdges(MethodInformation methodInformation) {
@@ -85,7 +84,7 @@ public class MethodDeclarationVisitor extends ASTVisitor {
 		}
 	}
 
-	private void setNodes(MethodDeclaration methodDeclaration, MethodInformation methodInformation) {
+	private void setNodes(ASTNode node, MethodInformation methodInformation) {
 		ASTVisitor nodeVisitor = new ASTVisitor() {
 			@Override
 			public void postVisit(ASTNode node) {
@@ -101,13 +100,13 @@ public class MethodDeclarationVisitor extends ASTVisitor {
 				}
 			}
 		};
-		methodDeclaration.accept(nodeVisitor);
+		node.accept(nodeVisitor);
 	}
 
-	private List<MethodInvocation> getMethodInvocations(MethodDeclaration methodDeclaration) {
+	private List<MethodInvocation> getMethodInvocations(ASTNode node) {
 		MethodInvocationVisitor visitor = new MethodInvocationVisitor();
 		visitor.setWantedPackageNames(wantedPackageNames);
-		methodDeclaration.accept(visitor);
+		node.accept(visitor);
 		return visitor.getWantedMethodInvocations();
 	}
 
