@@ -67,7 +67,7 @@ public class ConverterUtils {
 		fileInformationCache.put(fileInformationDTOPath, fileInformation);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("create value {}, also add it to cache for key {}", fileInformation, fileInformationDTOPath);
+			logger.debug("create value, also add it to cache for key {}", fileInformationDTOPath);
 		}
 		return fileInformation;
 	}
@@ -91,7 +91,7 @@ public class ConverterUtils {
 		methodCache.put(key, method);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("create value {}, also add it to cache for key {}", method, key);
+			logger.debug("create value, also add it to cache for key {}", key);
 		}
 
 		Collection<String> methodInvocations = methodInformationDTO.getMethodInvocationsMap().values();
@@ -128,7 +128,7 @@ public class ConverterUtils {
 		fileInformationDTOCache.put(fileInformationDTOPath, fileInformationDTO);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("read value {}, also add it to cache for key {}", fileInformationDTO, fileInformationDTOPath);
+			logger.debug("read value, also add it to cache for key {}", fileInformationDTOPath);
 		}
 		return fileInformationDTO;
 	}

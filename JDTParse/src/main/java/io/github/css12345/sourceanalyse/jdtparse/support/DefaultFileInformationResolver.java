@@ -43,11 +43,12 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 
 		File rootFile = new File(project.getPath());
 		List<File> suffixLikeJavaFiles = new ArrayList<>();
-		findSuffixLikeJavaFiles(rootFile, suffixLikeJavaFiles);
+		final String JAVA_SUFFIX = ".java";
+		findSuffixFiles(rootFile, suffixLikeJavaFiles, JAVA_SUFFIX);
 		// may be some module did not in root project directory
 		for (String path : allProjects.keySet()) {
 			if (!path.startsWith(project.getPath()))
-				findSuffixLikeJavaFiles(new File(path), suffixLikeJavaFiles);
+				findSuffixFiles(new File(path), suffixLikeJavaFiles, JAVA_SUFFIX);
 		}
 
 		if (logger.isInfoEnabled()) {
@@ -151,13 +152,15 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 		return compilationUnit;
 	}
 
-	private void findSuffixLikeJavaFiles(File rootFile, List<File> suffixLikeJavaFiles) {
+	public static void findSuffixFiles(File rootFile, List<File> suffixFiles, String suffix) {
 		File[] subFiles = rootFile.listFiles();
 		for (File subFile : subFiles) {
 			if (subFile.isDirectory())
-				findSuffixLikeJavaFiles(subFile, suffixLikeJavaFiles);
-			else if (subFile.getName().endsWith(".java") && subFile.getAbsolutePath().contains("src"))
-				suffixLikeJavaFiles.add(subFile);
+				findSuffixFiles(subFile, suffixFiles, suffix);
+			else {
+				if (subFile.getName().endsWith(suffix) && subFile.getAbsolutePath().contains("src"))
+					suffixFiles.add(subFile);
+			}
 		}
 	}
 

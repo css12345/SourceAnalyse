@@ -15,7 +15,7 @@ public class ASTNode {
 	@GeneratedValue
 	private Long id;
 
-	private String content;
+	private transient String content;
 
 	private String type;
 
@@ -31,6 +31,10 @@ public class ASTNode {
 	public ASTNode(String content, String type) {
 		this.content = content;
 		this.type = type;
+	}
+	
+	public Long getId() {
+		return this.id;
 	}
 
 	public void addChild(ASTNode astNode) {
