@@ -43,7 +43,7 @@ public class MavenDependencyManager implements DependencyManager {
 
 			File pomFile = new File(projectRootFile, "pom.xml");
 
-			setModules(projectRootFile, project);
+			setModules(projectRootFile, project, "");
 
 			File dependenciesOutputFile = new File(pomFile.getParentFile(), "result.txt");
 			String command = "cd" + (CommandExecutor.isWindows ? " /d " : " ");
@@ -91,7 +91,7 @@ public class MavenDependencyManager implements DependencyManager {
 		return pathOfDependencies;
 	}
 
-	private void setModules(File projectRootFile, Project project) throws IOException {
+	private void setModules(File projectRootFile, Project project, String relativePath) throws IOException {
 		String command = "cd /d %s & mvn help:evaluate -Dexpression=project.modules -q -DforceStdout";
 		command = String.format(command, projectRootFile.getAbsolutePath());
 		
@@ -107,9 +107,10 @@ public class MavenDependencyManager implements DependencyManager {
 				String modulePath = line.substring(line.indexOf(prefix) + prefix.length(), line.lastIndexOf(suffix));
 				File moduleFile = new File(projectRootFile, modulePath);
 				Project moduleProject = new Project();
+				moduleProject.setRelativePath(relativePath + '/' + modulePath);
 				moduleProject.setPath(moduleFile.getCanonicalPath());
 				moduleProject.setWantedPackageNames(project.getWantedPackageNames());
-				setModules(moduleFile, moduleProject);
+				setModules(moduleFile, moduleProject, relativePath + '/' + modulePath);
 
 				project.addModule(moduleProject);
 			}

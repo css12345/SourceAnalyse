@@ -61,6 +61,7 @@ public class GradleDependencyManager implements DependencyManager {
 			String[] subprojects = projectInformations[2].split(",");
 			for (String subprojectPath : subprojects) {
 				Project module = new Project();
+				module.setRelativePath(subprojectPath);
 				module.setWantedPackageNames(project.getWantedPackageNames());
 				project.addModule(module);
 				configureProject(module, buildGradleFile, taskString, subprojectPath);

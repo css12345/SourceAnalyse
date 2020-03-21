@@ -8,6 +8,11 @@ import java.util.Set;
 public class Project {
 	private String path;
 
+	/**
+	 * use to record relative path for sub projects compare with root project.
+	 */
+	private String relativePath;
+
 	private List<String> pathOfDependencies = new ArrayList<>();
 
 	private String pathOfDependenciesLocation;
@@ -15,6 +20,14 @@ public class Project {
 	private Set<String> wantedPackageNames = new HashSet<>();
 
 	private List<Project> modules = new ArrayList<>();
+
+	public String getRelativePath() {
+		return relativePath;
+	}
+
+	public void setRelativePath(String relativePath) {
+		this.relativePath = relativePath;
+	}
 
 	public Set<String> getWantedPackageNames() {
 		return wantedPackageNames;
@@ -94,9 +107,9 @@ public class Project {
 
 	@Override
 	public String toString() {
-		return "Project [path=" + path + ", pathOfDependencies=" + pathOfDependencies + ", pathOfDependenciesLocation="
-				+ pathOfDependenciesLocation + ", wantedPackageNames=" + wantedPackageNames + ", modules=" + modules
-				+ "]";
+		return "Project [path=" + path + ", relativePath=" + relativePath + ", pathOfDependencies=" + pathOfDependencies
+				+ ", pathOfDependenciesLocation=" + pathOfDependenciesLocation + ", wantedPackageNames="
+				+ wantedPackageNames + ", modules=" + modules + "]";
 	}
 
 }
