@@ -35,10 +35,10 @@ public class TestMethodInvocationVisitor {
 				"/Fruit-Sales-Platform/src/main/java/com/fruitsalesplatform/controller/CommoditiesController.java");
 		String[] sourcepathEntries = { "D:/Users/lenovo/workspace/Fruit-Sales-Platform/src/main/java" };
 		String[] classpathEntries = {
-				"D:/Program Files/apache-maven-3.5.4/commons-logging/commons-logging/1.2/commons-logging-1.2.jar",
-				"D:/Program Files/apache-maven-3.5.4/com/alibaba/fastjson/1.1.41/fastjson-1.1.41.jar",
-				"D:/Program Files/apache-maven-3.5.4/log4j/log4j/1.2.17/log4j-1.2.17.jar",
-				"D:/Program Files/apache-maven-3.5.4/org/springframework/spring-context/4.2.5.RELEASE/spring-context-4.2.5.RELEASE.jar" };
+				"D:/Program Files/apache-maven/commons-logging/commons-logging/1.2/commons-logging-1.2.jar",
+				"D:/Program Files/apache-maven/com/alibaba/fastjson/1.1.41/fastjson-1.1.41.jar",
+				"D:/Program Files/apache-maven/log4j/log4j/1.2.17/log4j-1.2.17.jar",
+				"D:/Program Files/apache-maven/org/springframework/spring-context/4.2.5.RELEASE/spring-context-4.2.5.RELEASE.jar" };
 		parser.setEnvironment(classpathEntries, sourcepathEntries, new String[] { "UTF-8" }, true);
 
 		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
