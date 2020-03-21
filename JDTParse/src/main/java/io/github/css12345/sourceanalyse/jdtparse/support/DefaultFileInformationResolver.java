@@ -3,7 +3,6 @@ package io.github.css12345.sourceanalyse.jdtparse.support;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +26,7 @@ import io.github.css12345.sourceanalyse.jdtparse.entity.ClassInformation;
 import io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation;
 import io.github.css12345.sourceanalyse.jdtparse.entity.MethodInformation;
 import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
+import io.github.css12345.sourceanalyse.jdtparse.utils.ProjectUtils;
 
 @Component
 public class DefaultFileInformationResolver implements FileInformationResolver {
@@ -38,18 +38,7 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 
 	@Override
 	public List<FileInformation> getFileInformations(Project project) {
-		Map<String, Project> allProjects = new HashMap<>();
-		addProjects(project, allProjects);
-
-		File rootFile = new File(project.getPath());
-		List<File> suffixLikeJavaFiles = new ArrayList<>();
-		final String JAVA_SUFFIX = ".java";
-		findSuffixFiles(rootFile, suffixLikeJavaFiles, JAVA_SUFFIX);
-		// may be some module did not in root project directory
-		for (String path : allProjects.keySet()) {
-			if (!path.startsWith(project.getPath()))
-				findSuffixFiles(new File(path), suffixLikeJavaFiles, JAVA_SUFFIX);
-		}
+		List<File> suffixLikeJavaFiles = ProjectUtils.findSuffixLikeJavaFiles(project);
 
 		if (logger.isInfoEnabled()) {
 			logger.info("find suffix like java files {}", suffixLikeJavaFiles);
@@ -60,7 +49,7 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 		for (File file : suffixLikeJavaFiles) {
 			Project closestProject;
 			try {
-				closestProject = findClosetProject(file.getCanonicalPath(), allProjects);
+				closestProject = ProjectUtils.findClosestProject(file.getCanonicalPath(), project);
 				if (closestProject == null)
 					throw new RuntimeException("can't find a project for file " + file);
 			} catch (IOException e) {
@@ -107,22 +96,6 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 		return fileInformations;
 	}
 
-	private Project findClosetProject(String filePath, Map<String, Project> allProjects) {
-		int lastIndexOfFileSeparator;
-		while ((lastIndexOfFileSeparator = filePath.lastIndexOf(File.separatorChar)) != -1) {
-			filePath = filePath.substring(0, lastIndexOfFileSeparator);
-			if (allProjects.containsKey(filePath))
-				return allProjects.get(filePath);
-		}
-		return null;
-	}
-
-	private void addProjects(Project project, Map<String, Project> allProjects) {
-		allProjects.put(project.getPath(), project);
-		for (Project subproject : project.getModules())
-			addProjects(subproject, allProjects);
-	}
-
 	private List<MethodInformation> buildASTAndVisitMethodDeclarations(ClassInformation classInformation) {
 		CompilationUnit compilationUnit = setUpCompilationUnit(classInformation);
 
@@ -150,18 +123,6 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 
 		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 		return compilationUnit;
-	}
-
-	public static void findSuffixFiles(File rootFile, List<File> suffixFiles, String suffix) {
-		File[] subFiles = rootFile.listFiles();
-		for (File subFile : subFiles) {
-			if (subFile.isDirectory())
-				findSuffixFiles(subFile, suffixFiles, suffix);
-			else {
-				if (subFile.getName().endsWith(suffix) && subFile.getAbsolutePath().contains("src"))
-					suffixFiles.add(subFile);
-			}
-		}
 	}
 
 	private Set<String> readFromParams() {

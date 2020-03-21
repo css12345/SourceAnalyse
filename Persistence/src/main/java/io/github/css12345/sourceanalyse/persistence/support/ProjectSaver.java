@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 import io.github.css12345.sourceanalyse.jdtparse.entity.FileInformationDTO;
 import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
-import io.github.css12345.sourceanalyse.jdtparse.support.DefaultFileInformationResolver;
 import io.github.css12345.sourceanalyse.jdtparse.support.FileInformationResolver;
+import io.github.css12345.sourceanalyse.jdtparse.utils.ProjectUtils;
 import io.github.css12345.sourceanalyse.persistence.entity.FileInformation;
 import io.github.css12345.sourceanalyse.persistence.repository.FileInformationRepository;
 import io.github.css12345.sourceanalyse.persistence.utils.ConverterUtils;
@@ -56,8 +56,7 @@ public class ProjectSaver {
 	}
 
 	protected void convertAndSaveFileToDatabase(Project project) {
-		List<File> filesOfProject = new ArrayList<>();
-		DefaultFileInformationResolver.findSuffixFiles(new File(project.getPath()), filesOfProject, ".java");
+		List<File> filesOfProject = ProjectUtils.findSuffixLikeJavaFiles(project);
 
 		long startTime = System.currentTimeMillis();
 		List<FileInformation> fileInformations = new ArrayList<>(size);
