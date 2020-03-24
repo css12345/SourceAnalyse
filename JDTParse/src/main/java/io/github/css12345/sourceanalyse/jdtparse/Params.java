@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -18,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import io.github.css12345.sourceanalyse.jdtparse.entity.ASTNodeInformation;
 import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
 import io.github.css12345.sourceanalyse.jdtparse.utils.ProjectResolver;
 
@@ -35,10 +37,12 @@ public class Params implements InitializingBean {
 	private ProjectResolver projectResolver;
 
 	private File methodDeclarationIncludeTypesFile;
+	private File specialNodesFile;
 	private File gradleTasksFile;
 	private String GRADLE_USER_HOME;
 
 	private List<Project> projects = new ArrayList<>();
+
 
 	private void resolveProjects() {
 		Map<String, Project> beansOfProjectMap = applicationContext.getBeansOfType(Project.class);
@@ -157,6 +161,14 @@ public class Params implements InitializingBean {
 		if (logger.isInfoEnabled()) {
 			logger.info("set gradleTasksFile {}", gradleTasksFile);
 		}
+		specialNodesFile = applicationContext
+				.getResource(environment.getProperty("ASTNode.specialNodes.location",
+						"classpath:specialNodes.txt"))
+				.getFile();
+		if (logger.isInfoEnabled()) {
+			logger.info("set specialNodesFile {}", specialNodesFile);
+		}
+		ASTNodeInformation.addAll(FileUtils.readLines(specialNodesFile, "UTF-8"));
 		GRADLE_USER_HOME = environment.getProperty("GRADLE_USER_HOME");
 		if (logger.isInfoEnabled()) {
 			logger.info("set GRADLE_USER_HOME {}", GRADLE_USER_HOME);
@@ -165,6 +177,10 @@ public class Params implements InitializingBean {
 
 	public File getMethodDeclarationIncludeTypesFile() {
 		return methodDeclarationIncludeTypesFile;
+	}
+	
+	public File getSpecialNodesFile() {
+		return specialNodesFile;
 	}
 
 	public File getGradleTasksFile() {
