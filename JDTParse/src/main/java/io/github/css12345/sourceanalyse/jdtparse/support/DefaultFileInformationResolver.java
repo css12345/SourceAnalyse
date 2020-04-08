@@ -5,14 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -26,6 +22,7 @@ import io.github.css12345.sourceanalyse.jdtparse.entity.ClassInformation;
 import io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation;
 import io.github.css12345.sourceanalyse.jdtparse.entity.MethodInformation;
 import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
+import io.github.css12345.sourceanalyse.jdtparse.utils.ASTParserUtils;
 import io.github.css12345.sourceanalyse.jdtparse.utils.ProjectUtils;
 
 @Component
@@ -61,7 +58,7 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 		}
 		
 		for (ClassInformation classInformation : classInformations) {
-			CompilationUnit compilationUnit = setUpCompilationUnit(classInformation);
+			CompilationUnit compilationUnit = ASTParserUtils.setUpCompilationUnit(classInformation);
 			compilationUnit.accept(new ASTVisitor() {
 				@Override
 				public void postVisit(ASTNode astNode) {
@@ -97,7 +94,7 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 	}
 
 	private List<MethodInformation> buildASTAndVisitMethodDeclarations(ClassInformation classInformation) {
-		CompilationUnit compilationUnit = setUpCompilationUnit(classInformation);
+		CompilationUnit compilationUnit = ASTParserUtils.setUpCompilationUnit(classInformation);
 
 		MethodDeclarationVisitor methodDeclarationVisitor = new MethodDeclarationVisitor();
 		methodDeclarationVisitor.setIncludedNodeTypes(readFromParams());
@@ -106,23 +103,6 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 		compilationUnit.accept(methodDeclarationVisitor);
 
 		return methodDeclarationVisitor.getMethodInformations();
-	}
-
-	private CompilationUnit setUpCompilationUnit(ClassInformation classInformation) {
-		@SuppressWarnings("deprecation")
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
-		Map<String, String> options = JavaCore.getOptions();
-		JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
-		parser.setCompilerOptions(options);
-		parser.setSource(classInformation.getContent().toCharArray());
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		parser.setResolveBindings(true);
-		parser.setUnitName(classInformation.getUnitName());
-		parser.setEnvironment(classInformation.getClasspathEntries(), classInformation.getSourcepathEntries(),
-				classInformation.getEncodings(), true);
-
-		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
-		return compilationUnit;
 	}
 
 	private Set<String> readFromParams() {
