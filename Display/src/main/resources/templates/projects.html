@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head
+	th:replace="fragments/general::header(~{::title},~{::link},~{::script})">
+<meta charset="UTF-8">
+<title>Java源码跨版本比较工具</title>
+<link rel="stylesheet"
+	href="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.css">
+<link rel="stylesheet"
+	href="https://cdn.bootcss.com/jquery-treegrid/0.2.0/css/jquery.treegrid.min.css">
+<link rel="stylesheet" th:href="@{/css/jquery-confirm.min.css}">
+
+<script
+	src="https://cdn.bootcss.com/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+<script
+	src="https://cdn.bootcss.com/bootstrap-table/1.12.0/extensions/treegrid/bootstrap-table-treegrid.js"></script>
+<script
+	src="https://cdn.bootcss.com/jquery-treegrid/0.2.0/js/jquery.treegrid.min.js"></script>
+<script th:src="@{/js/jquery-confirm.min.js}"></script>
+<script type="text/javascript">
+	//格式化按钮
+	function operateFormatter(value, row, index) {
+		return [
+				'<div class="btn-group">',
+				'<a id="RoleOfShowDependencies" class="btn btn-xs btn-default" href="javascript:void(0);" title="查看项目依赖" data-toggle="tooltip" data-original-title="查看项目依赖"><i class="mdi mdi-eye"></i></a>',
+				'<a id="RoleOfDelete" class="btn btn-xs btn-default" href="javascript:void(0);" title="删除" data-toggle="tooltip" data-original-title="删除"><i class="mdi mdi-window-close"></i></a>',
+				'</div>' ].join('');
+	}
+	//初始化操作按钮的方法
+	window.operateEvents = {
+		'click #RoleOfShowDependencies' : function(e, value, row, index) {
+			showDependencies(row.pathOfDependencies);
+		},
+		'click #RoleOfDelete' : function(e, value, row, index) {
+			del(row.id, row.projectPath);
+		}
+	}
+</script>
+<script type="text/javascript">
+	$(function() {
+		var $table = $('#projectsTable');
+		$table.bootstrapTable({
+			url : 'projects',
+			idField : 'id',
+			columns : [ {
+				field : 'check',
+				checkbox : true,
+				formatter : function(value, row, index) {
+					if (row.check == true) {
+						//设置选中
+						return {
+							checked : true
+						};
+					}
+				}
+			}, {
+				field : 'projectPath',
+				title : '项目路径'
+			}, {
+				field : 'projectName',
+				title : '项目名称'
+			}, {
+				field : 'relativePath',
+				title : '子项目相对路径'
+			}, {
+				field : 'version',
+				title : '版本'
+			}, {
+				field : 'wantedPackageNames',
+				title : '保留的方法调用类所在包'
+			}, {
+				field : 'operate',
+				title : '操作',
+				align : 'center',
+				events : 'operateEvents',
+				formatter : 'operateFormatter'
+			} ],
+			//在哪一列展开树形
+			treeShowField : 'projectPath',
+			//指定父id列
+			parentIdField : 'pid',
+
+			onResetView : function(data) {
+				$table.treegrid({
+					treeColumn : 1,
+					onChange : function() {
+						$table.bootstrapTable('resetWidth');
+					}
+				});
+			},
+			onCheck : function(row) {
+				var datas = $table.bootstrapTable('getData');
+				// 勾选子类
+				selectChilds(datas, row, "id", "pid", true);
+
+				// 勾选父类
+				selectParentChecked(datas, row, "id", "pid")
+
+				// 刷新数据
+				$table.bootstrapTable('load', datas);
+			},
+
+			onUncheck : function(row) {
+				var datas = $table.bootstrapTable('getData');
+				selectChilds(datas, row, "id", "pid", false);
+				$table.bootstrapTable('load', datas);
+			}
+		});
+	});
+</script>
+<script>
+	/**
+	 * 选中父项时，同时选中子项
+	 * @param datas 所有的数据
+	 * @param row 当前数据
+	 * @param id id 字段名
+	 * @param pid 父id字段名
+	 */
+	function selectChilds(datas, row, id, pid, checked) {
+		for ( var i in datas) {
+			if (datas[i][pid] == row[id]) {
+				datas[i].check = checked;
+				selectChilds(datas, datas[i], id, pid, checked);
+			}
+		}
+	}
+
+	function selectParentChecked(datas, row, id, pid) {
+		for ( var i in datas) {
+			if (datas[i][id] == row[pid]) {
+				datas[i].check = true;
+				selectParentChecked(datas, datas[i], id, pid);
+			}
+		}
+	}
+
+	function showDependencies(dependencies) {
+		var content = "";
+		dependencies.forEach(function(dependency) {
+			content += dependency;
+			content += '<br>';
+		})
+		$('#dependenciesContent').html(content);
+		$('#showDependencies').modal('show');
+	}
+	function del(id, projectPath) {
+		$.confirm({
+			title : '删除项目',
+			content : '是否删除项目' + projectPath,
+			buttons : {
+				confirm : {
+					text : '确认',
+					action : function() {
+						var url = 'projects/delete/' + id;
+						$.get(url, function() {
+							$.alert('删除成功!');
+							window.location.reload(true);
+						})
+					}
+				},
+				cancel : {
+					text : '取消'
+				}
+			}
+		});
+	}
+
+	function delMany() {
+		var $table = $('#projectsTable');
+		var selRows = $table.bootstrapTable("getSelections");
+		if (selRows.length == 0) {
+			$.alert("请至少选择一行");
+			return;
+		}
+
+		var ids = [];
+		selRows.forEach(function(row) {
+			ids.push(row.id);
+		})
+
+		var url = 'projects/deleteMany';
+		$.ajax({
+			type : 'POST',
+			contentType : 'application/json; charset=utf-8',
+			url : url,
+			data : JSON.stringify({
+				projectIds : ids
+			}),
+			success : function() {
+				$.alert('删除成功!');
+				window.location.reload(true);
+			}
+		});
+	}
+</script>
+</head>
+<body>
+	<div class="lyear-layout-web">
+		<div class="lyear-layout-container">
+			<div th:replace="fragments/general::left"></div>
+			<div th:replace="fragments/general::top('项目管理')"></div>
+			<!--页面主要内容-->
+			<main class="lyear-layout-content">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="card">
+								<div class="card-toolbar clearfix">
+									<div class="toolbar-btn-action">
+										<a class="btn btn-primary m-r-5" th:href="@{/projects/add}"> <i
+											class="mdi mdi-plus"></i>新增
+										</a> <a class="btn btn-danger" href="javascript:delMany()"> <i
+											class="mdi mdi-window-close"></i>批量删除
+										</a>
+									</div>
+								</div>
+
+								<div class="card-body">
+									<div class="table-responsive">
+										<table id="projectsTable" class="table table-bordered">
+
+										</table>
+
+										<div class="modal fade" id="showDependencies" tabindex="-1"
+											role="dialog" aria-labelledby="myModalLabel">
+											<div class="modal-dialog" role="document">
+												<div class="modal-content">
+													<div class="modal-header">
+														<button type="button" class="close" data-dismiss="modal"
+															aria-label="Close">
+															<span aria-hidden="true">&times;</span>
+														</button>
+														<h4 class="modal-title" id="myModalLabel">项目依赖信息</h4>
+													</div>
+													<div id="dependenciesContent" class="modal-body">依赖信息</div>
+													<div class="modal-footer">
+														<button type="button" class="btn btn-default"
+															data-dismiss="modal">关闭</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</main>
+			<!--End 页面主要内容-->
+		</div>
+	</div>
+</body>
+</html>

@@ -1,3 +1,5 @@
+.externalToolBuilders
+cache
 target/
 bin/
 .sts4-cache

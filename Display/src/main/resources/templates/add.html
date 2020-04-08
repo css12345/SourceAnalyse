@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/general::header(~{::title},~{},~{})">
+<meta charset="UTF-8">
+<title>添加项目</title>
+</head>
+<body>
+	<div class="lyear-layout-web">
+		<div class="lyear-layout-container">
+			<div th:replace="fragments/general::left"></div>
+			<div th:replace="fragments/general::top('项目管理-添加项目')"></div>
+			<main class="lyear-layout-content">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="card">
+								<div class="card-body">
+									<form method="post" class="row" th:object="${projectVO}">
+										<div class="form-group col-md-12">
+											<label>项目路径</label> <input type="text" class="form-control"
+												placeholder="请输入项目路径" th:field="*{projectPath}" required />
+											<div class="help-block" style="color: #a94442;">
+												<p th:each="error: ${#fields.errors('projectPath')}"
+													th:text="${error}">Invalid data</p>
+											</div>
+										</div>
+										<div class="form-group col-md-12">
+											<label>项目名称</label> <input type="text" class="form-control"
+												placeholder="请输入项目名称" th:field="*{projectName}"
+												required />
+											<div class="help-block" style="color: #a94442;">
+												<p th:each="error: ${#fields.errors('projectName')}"
+													th:text="${error}">Invalid data</p>
+											</div>
+										</div>
+										<div class="form-group col-md-12">
+											<label>版本号</label> <input type="text" class="form-control"
+												placeholder="请输入版本号" th:field="*{version}"
+												required />
+											<div class="help-block" style="color: #a94442;">
+												<p th:each="error: ${#fields.errors('version')}"
+													th:text="${error}">Invalid data</p>
+											</div>
+										</div>
+										<div class="form-group col-md-12">
+											<label>保留的方法调用类所在包</label> <input type="text"
+												class="form-control"
+												placeholder="包名以逗号间隔，如com.only,com.onlyxiahui,com.oim（非必填项）" th:field="*{inputWantedPackageNames}" />
+										</div>
+										<div class="form-group col-md-12">
+											<label>依赖项</label>
+											<textarea class="form-control" rows="5"
+												placeholder="依赖项路径，以回车间隔（非必填项）" th:field="*{inputPathOfDependencies}"></textarea>
+										</div>
+										<div class="form-group col-md-12">
+											<button type="submit" class="btn btn-primary">确 定</button>
+											<button type="button" class="btn btn-default"
+												onclick="javascript:history.back(-1);return false;">返
+												回</button>
+										</div>
+									</form>
+
+								</div>
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+
+			</main>
+		</div>
+	</div>
+</body>
+</html>

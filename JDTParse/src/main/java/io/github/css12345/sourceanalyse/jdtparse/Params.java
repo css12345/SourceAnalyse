@@ -44,7 +44,7 @@ public class Params implements InitializingBean {
 	private List<Project> projects = new ArrayList<>();
 
 
-	private void resolveProjects() {
+	public void resolveProjects() {
 		Map<String, Project> beansOfProjectMap = applicationContext.getBeansOfType(Project.class);
 		if (logger.isInfoEnabled()) {
 			logger.info("find beans in application context of project, specific value is {}", beansOfProjectMap);

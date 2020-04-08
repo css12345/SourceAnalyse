@@ -32,7 +32,7 @@ public class ProjectResolver {
 	 * not null) starts with "classpath" or "file", it will replace it with absolute
 	 * path.<br>
 	 * if the file does not exist, return null.<br>
-	 * 2.if {@link Project#pathOfDependenciesLocation} is not null, read file
+	 * 2.if {@link Project#pathOfDependencies} is not empty, do nothing; else if {@link Project#pathOfDependenciesLocation} is not null, read file
 	 * content for pathOfDependencies;else try to use different
 	 * {@linkplain io.github.css12345.sourceanalyse.jdtparse.support.DependencyManager#configureProjectDependencies(File)
 	 * DependencyManager.getPathOfDependencies(File)} implement to get the
@@ -56,17 +56,18 @@ public class ProjectResolver {
 				logger.debug("set path {} of project", absolutePath);
 			}
 
-			String pathOfDependenciesLocation = resolvedProject.getPathOfDependenciesLocation();
-			if (pathOfDependenciesLocation != null) {
-				String pathOfDependenciesLocationAbsolutePath = getAbsolutePath(pathOfDependenciesLocation);
-				if (pathOfDependenciesLocationAbsolutePath == null)
-					return null;
-				resolvedProject.setPathOfDependenciesLocation(pathOfDependenciesLocationAbsolutePath);
-				if (logger.isDebugEnabled()) {
-					logger.debug("set pathOfDependenciesLocation {} of project", pathOfDependenciesLocationAbsolutePath);
-				}
-
-				if (ObjectUtils.isEmpty(resolvedProject.getPathOfDependencies())) {
+			if (ObjectUtils.isEmpty(resolvedProject.getPathOfDependencies())) {
+				String pathOfDependenciesLocation = resolvedProject.getPathOfDependenciesLocation();
+				if (pathOfDependenciesLocation != null) {
+					String pathOfDependenciesLocationAbsolutePath = getAbsolutePath(pathOfDependenciesLocation);
+					if (pathOfDependenciesLocationAbsolutePath == null)
+						return null;
+					resolvedProject.setPathOfDependenciesLocation(pathOfDependenciesLocationAbsolutePath);
+					if (logger.isDebugEnabled()) {
+						logger.debug("set pathOfDependenciesLocation {} of project",
+								pathOfDependenciesLocationAbsolutePath);
+					}
+					
 					File pathOfDependenciesLocationFile = new File(pathOfDependenciesLocationAbsolutePath);
 					List<String> pathOfDependencies = readAndCheckDependencies(pathOfDependenciesLocationFile);
 					resolvedProject.setPathOfDependencies(pathOfDependencies);
@@ -74,15 +75,15 @@ public class ProjectResolver {
 					if (logger.isDebugEnabled()) {
 						logger.debug("set pathOfDependencies {} of project", pathOfDependencies);
 					}
-				}
-
-			} else { 
-				if (ObjectUtils.isEmpty(resolvedProject.getPathOfDependencies())) {
-					DependencyManagerFactory dependencyManagerFactory = applicationContext.getBean(DependencyManagerFactory.class);
+					
+				} else {
+					DependencyManagerFactory dependencyManagerFactory = applicationContext
+							.getBean(DependencyManagerFactory.class);
 					DependencyManager dependencyManager = dependencyManagerFactory.getDependencyManager(absolutePath);
 					dependencyManager.configureProjectDependencies(resolvedProject);
 				}
 			}
+
 		} catch (Exception e) {
 			throw new ProjectResolveException("an exception occur when resolve project, specific is\n" + e, e);
 		}

@@ -6,10 +6,16 @@
     "defaultValue": "classpath:includedNodeTypes.txt in JDTParse-0.0.1-SNAPSHOT.jar"
   },
   {
-    "name": "gradleTasks.location",
+  	"name": "gradleTasks.location",
     "type": "java.lang.String",
     "description": "A gradle tasks file location to get all dependencies path in a project, must starts with 'classpath:' or 'file:'.It can be omitted.",
     "defaultValue": "classpath:gradleTasks.txt in JDTParse-0.0.1-SNAPSHOT.jar"
+  },
+  {
+    "name": "ASTNode.specialNodes.location",
+    "type": "java.lang.String",
+    "description": "A list file location to distinguish ASTNode with content, like 'SimpleName', 'StringLiteral' and etc...It can be omitted.",
+    "defaultValue": "classpath:specialNodes.txt in JDTParse-0.0.1-SNAPSHOT.jar"
   },
   {
     "name": "GRADLE_USER_HOME",
