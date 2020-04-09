@@ -54,7 +54,19 @@ public class TestProjectResolver {
 
 	@Autowired
 	private Params params;
-
+	
+	@Autowired
+	private Project mavenProject;
+	
+	@Autowired
+	private Project gradleProject;
+	
+	@Autowired
+	private Project specificDirectoryProject;
+	
+	@Autowired
+	private Project configuredDependencyLocationProject;
+	
 	@Test
 	public void test() {
 		assertEquals(6, params.getProjects().size());
@@ -62,28 +74,28 @@ public class TestProjectResolver {
 
 	@Test
 	public void testMavenProject() {
-		Project resolvedProject = params.getProjects().get(0);
+		Project resolvedProject = mavenProject;
 		assertEquals("D:\\Users\\lenovo\\workspace\\Fruit-Sales-Platform", resolvedProject.getPath());
 		assertEquals(52, resolvedProject.getPathOfDependencies().size());
 	}
 
 	@Test
 	public void testGradleProject() {
-		Project resolvedProject = params.getProjects().get(1);
+		Project resolvedProject = gradleProject;
 		assertEquals("D:\\Users\\lcs\\workspace\\SpringBootTest", resolvedProject.getPath());
 		assertEquals(96, resolvedProject.getPathOfDependencies().size());
 	}
 
 	@Test
 	public void testSpecificDirectoryProject() {
-		Project resolvedProject = params.getProjects().get(2);
+		Project resolvedProject = specificDirectoryProject;
 		assertEquals("D:\\Users\\lenovo\\workspace\\MyBatisFirstDemo", resolvedProject.getPath());
 		assertEquals(12, resolvedProject.getPathOfDependencies().size());
 	}
 
 	@Test
 	public void testConfiguredDependencyLocationProject() {
-		Project resolvedProject = params.getProjects().get(3);
+		Project resolvedProject = configuredDependencyLocationProject;
 		assertEquals("D:\\Users\\cs\\Documents\\GitHub\\SourceAnalyse\\JDTParse", resolvedProject.getPath());
 		assertEquals(65, resolvedProject.getPathOfDependencies().size());
 	}

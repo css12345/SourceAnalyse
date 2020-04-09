@@ -46,30 +46,38 @@ public class ProjectSaver {
 	public int getSize() {
 		return this.size;
 	}
+	
+	public void saveProject(Project project, List<File> files, boolean jsonFileSaved) {
+		if (!jsonFileSaved) {
+			saveToJsonFile(project, files);
+		}
+		
+		convertAndSaveFileToDatabase(project, files);
+	}
 
 	public void saveProject(Project project, boolean jsonFileSaved) {
-		if (!jsonFileSaved) {
-			saveToJsonFile(project);
-		}
-
-		convertAndSaveFileToDatabase(project);
+		saveProject(project, ProjectUtils.findSuffixLikeJavaFiles(project), jsonFileSaved);
 	}
 
 	protected void convertAndSaveFileToDatabase(Project project) {
 		List<File> filesOfProject = ProjectUtils.findSuffixLikeJavaFiles(project);
 
+		convertAndSaveFileToDatabase(project, filesOfProject);
+	}
+	
+	protected void convertAndSaveFileToDatabase(Project project, List<File> files) {
 		long startTime = System.currentTimeMillis();
 		List<FileInformation> fileInformations = new ArrayList<>(size);
-		for (int i = 0; i <= filesOfProject.size() / size; i++) {
+		for (int i = 0; i <= files.size() / size; i++) {
 			fileInformations.clear();
 			long currentTimeStartTime = System.currentTimeMillis();
-			for (int j = i * size; j < Math.min((i + 1) * size, filesOfProject.size()); j++) {
-				fileInformations.add(converterUtils.convert(filesOfProject.get(j).getAbsolutePath()));
+			for (int j = i * size; j < Math.min((i + 1) * size, files.size()); j++) {
+				fileInformations.add(converterUtils.convert(files.get(j).getAbsolutePath()));
 			}
 			fileInformationRepository.saveAll(fileInformations);
 			
 			String dealMessage = String.format("handle data of [%d,%d), cost time is %d ms", i * size,
-					Math.min((i + 1) * size, filesOfProject.size()), System.currentTimeMillis() - currentTimeStartTime);
+					Math.min((i + 1) * size, files.size()), System.currentTimeMillis() - currentTimeStartTime);
 			if (logger.isDebugEnabled())
 				logger.debug(dealMessage);
 		}
@@ -78,16 +86,20 @@ public class ProjectSaver {
 	}
 
 	protected void saveToJsonFile(Project project) {
+		saveToJsonFile(project, ProjectUtils.findSuffixLikeJavaFiles(project));
+	}
+	
+	protected void saveToJsonFile(Project project, List<File> files) {
 		long strartTime = System.currentTimeMillis();
 		List<io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation> fileInformations = fileInformationResolver
-				.getFileInformations(project);
+				.getFileInformations(files, project);
 		if (logger.isInfoEnabled()) {
 			logger.info("file information resolve finished, cost {} ms", System.currentTimeMillis() - strartTime);
 		}
 		
 		strartTime = System.currentTimeMillis();
 		for (io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation fileInformation : fileInformations) {
-			FileInformationDTO fileInformationDTO = new FileInformationDTO(fileInformation);
+			FileInformationDTO fileInformationDTO = new FileInformationDTO(fileInformation, project.getClassQualifiedNameLocationMap());
 			fileInformationDTOMapper.writeToJSONFile(fileInformationDTO);
 		}
 		if (logger.isInfoEnabled()) {

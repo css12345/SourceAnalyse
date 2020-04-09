@@ -3,6 +3,7 @@ package io.github.css12345.sourceanalyse.jdtparse.entity;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FileInformationDTO {
 	private String filePath;
@@ -17,13 +18,13 @@ public class FileInformationDTO {
 		
 	}
 	
-	public FileInformationDTO(FileInformation fileInformation) {
+	public FileInformationDTO(FileInformation fileInformation, Map<String, String> classQualifiedNameLocationMap) {
 		this.filePath = fileInformation.getFile().getAbsolutePath();
 		this.rootProjectPath = fileInformation.getRootProjectPath();
 		this.version = new File(rootProjectPath).getParentFile().getName();
 		
 		for (MethodInformation methodInformation : fileInformation.getMethodInformations()) {
-			MethodInformationDTO methodInformationDTO = new MethodInformationDTO(methodInformation, this);
+			MethodInformationDTO methodInformationDTO = new MethodInformationDTO(methodInformation, this, classQualifiedNameLocationMap);
 			hasMethods.add(methodInformationDTO);
 		}
 	}

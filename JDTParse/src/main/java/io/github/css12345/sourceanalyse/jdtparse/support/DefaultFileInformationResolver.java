@@ -5,12 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,64 +39,16 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 			logger.info("find suffix like java files {}", suffixLikeJavaFiles);
 		}
 
-		List<FileInformation> fileInformations = new ArrayList<>();
-		List<ClassInformation> classInformations = new ArrayList<>();
-		for (File file : suffixLikeJavaFiles) {
-			Project closestProject;
-			try {
-				closestProject = ProjectUtils.findClosestProject(file.getCanonicalPath(), project);
-				if (closestProject == null)
-					throw new RuntimeException("can't find a project for file " + file);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-			
-			ClassInformation classInformation = new ClassInformation(file.getAbsolutePath(), closestProject);
-			classInformations.add(classInformation);
-		}
-		
-		for (ClassInformation classInformation : classInformations) {
-			CompilationUnit compilationUnit = ASTParserUtils.setUpCompilationUnit(classInformation);
-			compilationUnit.accept(new ASTVisitor() {
-				@Override
-				public void postVisit(ASTNode astNode) {
-					if (astNode instanceof AbstractTypeDeclaration) {
-						AbstractTypeDeclaration abstractTypeDeclaration = (AbstractTypeDeclaration) astNode;
-						String classQualifiedName = abstractTypeDeclaration.resolveBinding().getQualifiedName();
-						FileInformation.getClassQualifiedNameLocationMap().put(classQualifiedName, classInformation.getPath());
-					}
-				}
-			});
-		}
-
-		for (ClassInformation classInformation : classInformations) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("start to resolve file {}", classInformation.getPath());
-			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("class information is {}", classInformation);
-			}
-			List<MethodInformation> methodInformations = buildASTAndVisitMethodDeclarations(classInformation);
-
-			FileInformation fileInformation = new FileInformation();
-			fileInformation.setFile(new File(classInformation.getPath()));
-			fileInformation.setRootProjectPath(project.getPath());
-			fileInformation.setMethodInformations(methodInformations);
-			fileInformations.add(fileInformation);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("resolved file information is {}", fileInformation);
-			}
-		}
-		return fileInformations;
+		return getFileInformations(suffixLikeJavaFiles, project);
 	}
 
-	private List<MethodInformation> buildASTAndVisitMethodDeclarations(ClassInformation classInformation) {
+	private List<MethodInformation> buildASTAndVisitMethodDeclarations(ClassInformation classInformation, Map<String, String> classQualifiedNameLocationMap) {
 		CompilationUnit compilationUnit = ASTParserUtils.setUpCompilationUnit(classInformation);
 
 		MethodDeclarationVisitor methodDeclarationVisitor = new MethodDeclarationVisitor();
 		methodDeclarationVisitor.setIncludedNodeTypes(readFromParams());
 		methodDeclarationVisitor.setValidPackageNames(classInformation.getWantedPackageNames());
+		methodDeclarationVisitor.setClassQualifiedNameLocationMap(classQualifiedNameLocationMap);
 
 		compilationUnit.accept(methodDeclarationVisitor);
 
@@ -113,5 +63,45 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 			throw new RuntimeException(String.format("read file of path %s occur an IOException",
 					params.getMethodDeclarationIncludeTypesFile()));
 		}
+	}
+
+	@Override
+	public List<FileInformation> getFileInformations(List<File> files, Project project) {
+		List<FileInformation> fileInformations = new ArrayList<>();
+		List<ClassInformation> classInformations = new ArrayList<>();
+		for (File file : files) {
+			Project closestProject;
+			try {
+				closestProject = ProjectUtils.findClosestProject(file.getCanonicalPath(), project);
+				if (closestProject == null)
+					throw new RuntimeException("can't find a project for file " + file);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			
+			ClassInformation classInformation = new ClassInformation(file.getAbsolutePath(), closestProject);
+			classInformations.add(classInformation);
+		}
+		
+		for (ClassInformation classInformation : classInformations) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("start to resolve file {}", classInformation.getPath());
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("class information is {}", classInformation);
+			}
+			List<MethodInformation> methodInformations = buildASTAndVisitMethodDeclarations(classInformation, project.getClassQualifiedNameLocationMap());
+
+			FileInformation fileInformation = new FileInformation();
+			fileInformation.setFile(new File(classInformation.getPath()));
+			fileInformation.setRootProjectPath(project.getPath());
+			fileInformation.setMethodInformations(methodInformations);
+			fileInformations.add(fileInformation);
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("resolved file information is {}", fileInformation);
+			}
+		}
+		return fileInformations;
 	}
 }

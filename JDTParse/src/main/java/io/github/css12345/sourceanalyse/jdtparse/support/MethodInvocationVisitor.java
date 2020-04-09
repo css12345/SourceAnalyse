@@ -1,8 +1,10 @@
 package io.github.css12345.sourceanalyse.jdtparse.support;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -13,7 +15,6 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation;
 import io.github.css12345.sourceanalyse.jdtparse.exception.BindingResolveException;
 
 /**
@@ -63,6 +64,8 @@ public class MethodInvocationVisitor extends ASTVisitor {
 	 * The final invocations
 	 */
 	private List<MethodInvocation> wantedMethodInvocations = new ArrayList<>();
+	
+	private Map<String, String> classQualifiedNameLocationMap = new HashMap<>();
 
 	@Override
 	public boolean visit(MethodInvocation node) {
@@ -73,7 +76,7 @@ public class MethodInvocationVisitor extends ASTVisitor {
 			String qualifiedName = declaringClassTypeBinding.getQualifiedName();
 			
 			//the invocated class must also be resolved
-			if (!FileInformation.getClassQualifiedNameLocationMap().containsKey(qualifiedName)) {
+			if (!classQualifiedNameLocationMap.containsKey(qualifiedName)) {
 				return true;
 			}
 
@@ -108,6 +111,14 @@ public class MethodInvocationVisitor extends ASTVisitor {
 
 	public List<MethodInvocation> getWantedMethodInvocations() {
 		return wantedMethodInvocations;
+	}
+
+	public Map<String, String> getClassQualifiedNameLocationMap() {
+		return classQualifiedNameLocationMap;
+	}
+
+	public void setClassQualifiedNameLocationMap(Map<String, String> classQualifiedNameLocationMap) {
+		this.classQualifiedNameLocationMap = classQualifiedNameLocationMap;
 	}
 
 }

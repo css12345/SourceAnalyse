@@ -1,8 +1,10 @@
 package io.github.css12345.sourceanalyse.jdtparse.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Project {
@@ -20,6 +22,8 @@ public class Project {
 	private Set<String> wantedPackageNames = new HashSet<>();
 
 	private List<Project> modules = new ArrayList<>();
+	
+	private Map<String, String> classQualifiedNameLocationMap = new HashMap<>();
 
 	public String getRelativePath() {
 		return relativePath;
@@ -110,6 +114,14 @@ public class Project {
 		return "Project [path=" + path + ", relativePath=" + relativePath + ", pathOfDependencies=" + pathOfDependencies
 				+ ", pathOfDependenciesLocation=" + pathOfDependenciesLocation + ", wantedPackageNames="
 				+ wantedPackageNames + ", modules=" + modules + "]";
+	}
+
+	public Map<String, String> getClassQualifiedNameLocationMap() {
+		return classQualifiedNameLocationMap;
+	}
+
+	public void setClassQualifiedNameLocationMap(Map<String, String> classQualifiedNameLocationMap) {
+		this.classQualifiedNameLocationMap = classQualifiedNameLocationMap;
 	}
 
 }

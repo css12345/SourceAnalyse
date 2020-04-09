@@ -1,8 +1,10 @@
 package io.github.css12345.sourceanalyse.display.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ProjectVOWrapper {
@@ -42,6 +44,8 @@ public class ProjectVOWrapper {
 	 * @see ProjectVO#wantedPackageNames
 	 */
 	private Set<String> wantedPackageNames = new HashSet<>();
+	
+	private Map<String, String> classQualifiedNameLocationMap = new HashMap<>();
 
 	public String getId() {
 		return id;
@@ -117,5 +121,13 @@ public class ProjectVOWrapper {
 
 	public void setParentProjectPath(String parentProjectPath) {
 		this.parentProjectPath = parentProjectPath;
+	}
+
+	public Map<String, String> getClassQualifiedNameLocationMap() {
+		return classQualifiedNameLocationMap;
+	}
+
+	public void setClassQualifiedNameLocationMap(Map<String, String> classQualifiedNameLocationMap) {
+		this.classQualifiedNameLocationMap = classQualifiedNameLocationMap;
 	}
 }

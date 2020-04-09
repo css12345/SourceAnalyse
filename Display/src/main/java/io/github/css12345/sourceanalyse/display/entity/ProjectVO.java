@@ -1,15 +1,27 @@
 package io.github.css12345.sourceanalyse.display.entity;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.validation.constraints.NotEmpty;
 
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+
 import io.github.css12345.sourceanalyse.display.annotation.FileExistConstraint;
 import io.github.css12345.sourceanalyse.display.annotation.ProjectAddConstraint;
+import io.github.css12345.sourceanalyse.jdtparse.entity.ClassInformation;
 import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
+import io.github.css12345.sourceanalyse.jdtparse.utils.ASTParserUtils;
+import io.github.css12345.sourceanalyse.jdtparse.utils.ProjectUtils;
 
 public class ProjectVO {
 	/**
@@ -48,6 +60,8 @@ public class ProjectVO {
 	private String parentProjectPath;
 
 	private List<ProjectVO> modules = new ArrayList<>();
+	
+	private Map<String, String> classQualifiedNameLocationMap = new HashMap<>();
 
 	public ProjectVO() {
 
@@ -108,6 +122,39 @@ public class ProjectVO {
 	public void setModules(List<ProjectVO> modules) {
 		this.modules = modules;
 	}
+	
+	public void resolveAndSetClassQualifiedNameLocationMap (Project project) {
+		List<File> suffixLikeJavaFiles = ProjectUtils.findSuffixLikeJavaFiles(project);
+		
+		List<ClassInformation> classInformations = new ArrayList<>();
+		for (File file : suffixLikeJavaFiles) {
+			Project closestProject;
+			try {
+				closestProject = ProjectUtils.findClosestProject(file.getCanonicalPath(), project);
+				if (closestProject == null)
+					throw new RuntimeException("can't find a project for file " + file);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			
+			ClassInformation classInformation = new ClassInformation(file.getAbsolutePath(), closestProject);
+			classInformations.add(classInformation);
+		}
+		
+		for (ClassInformation classInformation : classInformations) {
+			CompilationUnit compilationUnit = ASTParserUtils.setUpCompilationUnit(classInformation);
+			compilationUnit.accept(new ASTVisitor() {
+				@Override
+				public void postVisit(ASTNode astNode) {
+					if (astNode instanceof AbstractTypeDeclaration) {
+						AbstractTypeDeclaration abstractTypeDeclaration = (AbstractTypeDeclaration) astNode;
+						String classQualifiedName = abstractTypeDeclaration.resolveBinding().getQualifiedName();
+						classQualifiedNameLocationMap.put(classQualifiedName, classInformation.getPath());
+					}
+				}
+			});
+		}
+	}
 
 	public void resolveAndSetModules(Project project) {
 		List<Project> modules = project.getModules();
@@ -120,6 +167,7 @@ public class ProjectVO {
 			moduleVO.setPathOfDependencies(module.getPathOfDependencies());
 			moduleVO.setRelativePath(module.getRelativePath());
 			moduleVO.setParentProjectPath(project.getPath());
+			moduleVO.setClassQualifiedNameLocationMap(classQualifiedNameLocationMap);
 			moduleVO.resolveAndSetModules(module);
 			this.modules.add(moduleVO);
 		}
@@ -171,5 +219,13 @@ public class ProjectVO {
 
 	public void setParentProjectPath(String parentProjectPath) {
 		this.parentProjectPath = parentProjectPath;
+	}
+
+	public Map<String, String> getClassQualifiedNameLocationMap() {
+		return classQualifiedNameLocationMap;
+	}
+
+	public void setClassQualifiedNameLocationMap(Map<String, String> classQualifiedNameLocationMap) {
+		this.classQualifiedNameLocationMap = classQualifiedNameLocationMap;
 	}
 }

@@ -52,7 +52,7 @@ public class TestJacksonFileInformationDTOMapper {
 		List<FileInformation> fileInformations = fileInformationResolver.getFileInformations(testProject);
 		fileInformationDTOs.clear();
 		for (FileInformation fileInformation : fileInformations) {
-			fileInformationDTOs.add(new FileInformationDTO(fileInformation));
+			fileInformationDTOs.add(new FileInformationDTO(fileInformation, testProject.getClassQualifiedNameLocationMap()));
 		}
 	}
 	

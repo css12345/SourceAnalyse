@@ -74,7 +74,7 @@ public class TestFileInformationRepository {
 		List<io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation> fileInformations = fileInformationResolver
 				.getFileInformations(testProject1);
 		for (io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation fileInformation : fileInformations) {
-			FileInformationDTO fileInformationDTO = new FileInformationDTO(fileInformation);
+			FileInformationDTO fileInformationDTO = new FileInformationDTO(fileInformation, testProject1.getClassQualifiedNameLocationMap());
 			fileInformationDTOMapper.writeToJSONFile(fileInformationDTO);
 		}
 

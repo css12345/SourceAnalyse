@@ -2,10 +2,8 @@ package io.github.css12345.sourceanalyse.jdtparse;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -41,7 +39,7 @@ public class Params implements InitializingBean {
 	private File gradleTasksFile;
 	private String GRADLE_USER_HOME;
 
-	private List<Project> projects = new ArrayList<>();
+	private Set<Project> projects = new HashSet<>();
 
 
 	public void resolveProjects() {
@@ -191,7 +189,7 @@ public class Params implements InitializingBean {
 		return GRADLE_USER_HOME;
 	}
 
-	public List<Project> getProjects() {
+	public Set<Project> getProjects() {
 		return projects;
 	}
 

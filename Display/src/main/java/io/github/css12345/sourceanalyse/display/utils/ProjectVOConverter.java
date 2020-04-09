@@ -7,6 +7,7 @@ import java.util.Map;
 
 import io.github.css12345.sourceanalyse.display.entity.ProjectVO;
 import io.github.css12345.sourceanalyse.display.entity.ProjectVOWrapper;
+import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
 
 public class ProjectVOConverter {
 	public static List<ProjectVOWrapper> convertFrom(ProjectVO projectVO) {
@@ -20,6 +21,7 @@ public class ProjectVOConverter {
 		projectVOWrapper.setVersion(projectVO.getVersion());
 		projectVOWrapper.setWantedPackageNames(projectVO.getWantedPackageNames());
 		projectVOWrapper.setParentProjectPath(projectVO.getParentProjectPath());
+		projectVOWrapper.setClassQualifiedNameLocationMap(projectVO.getClassQualifiedNameLocationMap());
 		String id = ProjectIDUtils.getIDByProjectPath(projectVOWrapper.getProjectPath());
 		if (id == null)
 			id = ProjectIDUtils.generateAndSaveID(projectVOWrapper.getProjectPath());
@@ -44,6 +46,7 @@ public class ProjectVOConverter {
 			projectVO.setVersion(projectVOWrapper.getVersion());
 			projectVO.setWantedPackageNames(projectVOWrapper.getWantedPackageNames());
 			projectVO.setParentProjectPath(projectVOWrapper.getParentProjectPath());
+			projectVO.setClassQualifiedNameLocationMap(projectVOWrapper.getClassQualifiedNameLocationMap());
 			projectPathAndProjectVOMap.put(projectVO.getProjectPath(), projectVO);
 		}
 		
@@ -60,5 +63,29 @@ public class ProjectVOConverter {
 			}
 		}
 		return projectVOs;
+	}
+	
+	public static List<Project> convert(List<ProjectVO> projectVOs) {
+		List<Project> projects = new ArrayList<>(projectVOs.size());
+		for (ProjectVO projectVO : projectVOs) {
+			Project project = convert(projectVO);
+			projects.add(project);
+		}
+		return projects;
+	}
+
+	public static Project convert(ProjectVO projectVO) {
+		Project project = new Project();
+		project.setPath(projectVO.getProjectPath());
+		project.setRelativePath(projectVO.getRelativePath());
+		project.setPathOfDependencies(projectVO.getPathOfDependencies());
+		project.setWantedPackageNames(projectVO.getWantedPackageNames());
+		project.setClassQualifiedNameLocationMap(projectVO.getClassQualifiedNameLocationMap());
+		
+		for (ProjectVO moduleVO : projectVO.getModules()) {
+			Project module = convert(moduleVO);
+			project.addModule(module);
+		}
+		return project;
 	}
 }

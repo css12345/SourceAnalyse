@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,34 +88,34 @@ public class TestFileInformationResolver {
 		List<FileInformation> fileInformations = fileInformationResolver.getFileInformations(testProject1);
 		assertEquals(5, fileInformations.size());
 		System.out.println("\n\n\n");
-		display(fileInformations);
+		display(fileInformations, testProject1.getClassQualifiedNameLocationMap());
 	}
 
 	@Test
 	public void test2() {
 		List<FileInformation> fileInformations = fileInformationResolver.getFileInformations(testProject2);
-		display(fileInformations);
+		display(fileInformations, testProject2.getClassQualifiedNameLocationMap());
 	}
 
 	@Test
 	public void test3() {
 		List<FileInformation> fileInformations = fileInformationResolver.getFileInformations(testProject3);
-		display(fileInformations);
+		display(fileInformations, testProject3.getClassQualifiedNameLocationMap());
 	}
 
 	@Test
 	public void test4() {
 		List<FileInformation> fileInformations = fileInformationResolver.getFileInformations(testProject4);
-		display(fileInformations);
+		display(fileInformations, testProject4.getClassQualifiedNameLocationMap());
 	}
 
-	private void display(List<FileInformation> fileInformations) {
+	private void display(List<FileInformation> fileInformations, Map<String, String> classQualifiedNameLocationMap) {
 		ObjectMapper mapper = new ObjectMapper();
 		// configure Object mapper for pretty print
 		mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 
 		for (FileInformation fileInformation : fileInformations) {
-			FileInformationDTO fileInformationDTO = new FileInformationDTO(fileInformation);
+			FileInformationDTO fileInformationDTO = new FileInformationDTO(fileInformation, classQualifiedNameLocationMap);
 
 			// writing to console, can write to any output stream such as file
 			StringWriter stringEmp = new StringWriter();

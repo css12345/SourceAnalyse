@@ -1,8 +1,10 @@
 package io.github.css12345.sourceanalyse.jdtparse.support;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -41,6 +43,8 @@ public class MethodDeclarationVisitor extends ASTVisitor {
 	 * parameter, all method information of call node will be saved in this field.
 	 */
 	private List<MethodInformation> methodInformations = new ArrayList<>();
+	
+	private Map<String, String> classQualifiedNameLocationMap = new HashMap<>();
 	
 	@Override
 	public void postVisit(ASTNode node) {
@@ -106,6 +110,7 @@ public class MethodDeclarationVisitor extends ASTVisitor {
 	private List<MethodInvocation> getMethodInvocations(ASTNode node) {
 		MethodInvocationVisitor visitor = new MethodInvocationVisitor();
 		visitor.setWantedPackageNames(wantedPackageNames);
+		visitor.setClassQualifiedNameLocationMap(classQualifiedNameLocationMap);
 		node.accept(visitor);
 		return visitor.getWantedMethodInvocations();
 	}
@@ -128,5 +133,13 @@ public class MethodDeclarationVisitor extends ASTVisitor {
 
 	public void setIncludedNodeTypes(Set<String> includedNodeTypes) {
 		this.includedNodeTypes = includedNodeTypes;
+	}
+	
+	public Map<String, String> getClassQualifiedNameLocationMap() {
+		return classQualifiedNameLocationMap;
+	}
+
+	public void setClassQualifiedNameLocationMap(Map<String, String> classQualifiedNameLocationMap) {
+		this.classQualifiedNameLocationMap = classQualifiedNameLocationMap;
 	}
 }

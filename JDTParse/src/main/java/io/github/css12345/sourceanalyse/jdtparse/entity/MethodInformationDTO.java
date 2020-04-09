@@ -47,7 +47,7 @@ public class MethodInformationDTO {
 
 	}
 
-	public MethodInformationDTO(MethodInformation methodInformation, FileInformationDTO fileInformationDTO) {
+	public MethodInformationDTO(MethodInformation methodInformation, FileInformationDTO fileInformationDTO, Map<String, String> classQualifiedNameLocationMap) {
 		this.filePath = fileInformationDTO.getFilePath();
 		this.version = fileInformationDTO.getVersion();
 		this.edges = methodInformation.getEdges();
@@ -60,7 +60,7 @@ public class MethodInformationDTO {
 			int index = methodInformation.getNodes().indexOf(methodInvocation);
 			IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 			String qualifiedName = methodBinding.getDeclaringClass().getQualifiedName();
-			String location = FileInformation.getClassQualifiedNameLocationMap().get(qualifiedName);
+			String location = classQualifiedNameLocationMap.get(qualifiedName);
 			String briefMethodInformationOfCalledMethod = generateBriefMethodInformation(methodBinding);
 			methodInvocationsMap.put(index, String.format("%s-%s", location, briefMethodInformationOfCalledMethod));
 		}

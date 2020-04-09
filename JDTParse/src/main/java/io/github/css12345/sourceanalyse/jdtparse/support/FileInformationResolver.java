@@ -1,5 +1,6 @@
 package io.github.css12345.sourceanalyse.jdtparse.support;
 
+import java.io.File;
 import java.util.List;
 
 import io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation;
@@ -15,4 +16,6 @@ public interface FileInformationResolver {
 	 * @return a list contains resolved file information
 	 */
 	List<FileInformation> getFileInformations(Project project);
+	
+	List<FileInformation> getFileInformations(List<File> files, Project project);
 }
