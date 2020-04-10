@@ -1,4 +1,4 @@
-package io.github.css12345.sourceanalyse.display.utils;
+package io.github.css12345.sourceanalyse.similarityanalyse.utils;
 
 import java.io.File;
 import java.io.IOException;

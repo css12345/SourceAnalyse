@@ -8,8 +8,8 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import io.github.css12345.sourceanalyse.persistence.entity.FileInformation;
 
 public interface FileInformationRepository extends Neo4jRepository<FileInformation, Long> {
-	List<FileInformation> findByVersion(String version, @Depth int depth);
+	List<FileInformation> findByRootProjectPathAndVersion(String rootProjectPath, String version, @Depth int depth);
 
-	FileInformation findByFilePath(String filePath);
+	FileInformation findByFilePath(String filePath, @Depth int depth);
 
 }

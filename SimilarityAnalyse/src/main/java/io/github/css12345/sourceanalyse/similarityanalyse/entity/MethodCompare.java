@@ -1,39 +1,60 @@
 package io.github.css12345.sourceanalyse.similarityanalyse.entity;
 
-import io.github.css12345.sourceanalyse.persistence.entity.Method;
-
 public class MethodCompare {
-	private Method method1;
+	private String briefMethodInformation1;
 
-	private Method method2;
+	private String version1;
+
+	private String briefMethodInformation2;
+
+	private String version2;
 
 	private State state;
 
 	private double similarity = 0;
 
-	public MethodCompare(Method method1, Method method2) {
-		this.method1 = method1;
-		this.method2 = method2;
-	}
-
 	public MethodCompare() {
 
 	}
 
-	public Method getMethod1() {
-		return method1;
+	public MethodCompare(String briefMethodInformation1, String version1, String briefMethodInformation2,
+			String version2) {
+		this.briefMethodInformation1 = briefMethodInformation1;
+		this.version1 = version1;
+		this.briefMethodInformation2 = briefMethodInformation2;
+		this.version2 = version2;
 	}
 
-	public void setMethod1(Method method1) {
-		this.method1 = method1;
+	public String getVersion1() {
+		return version1;
 	}
 
-	public Method getMethod2() {
-		return method2;
+	public void setVersion1(String version1) {
+		this.version1 = version1;
 	}
 
-	public void setMethod2(Method method2) {
-		this.method2 = method2;
+	public String getVersion2() {
+		return version2;
+	}
+
+	public void setVersion2(String version2) {
+		this.version2 = version2;
+	}
+
+	public String getBriefMethodInformation1() {
+		return briefMethodInformation1;
+	}
+
+	public void setBriefMethodInformation1(String briefMethodInformation1) {
+		this.briefMethodInformation1 = briefMethodInformation1;
+	}
+
+	public String getBriefMethodInformation2() {
+		return briefMethodInformation2;
+	}
+
+	public void setBriefMethodInformation2(String briefMethodInformation2) {
+		this.briefMethodInformation2 = briefMethodInformation2;
 	}
 
 	public State getState() {

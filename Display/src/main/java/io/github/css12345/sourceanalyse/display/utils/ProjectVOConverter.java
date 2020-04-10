@@ -77,6 +77,7 @@ public class ProjectVOConverter {
 	public static Project convert(ProjectVO projectVO) {
 		Project project = new Project();
 		project.setPath(projectVO.getProjectPath());
+		project.setVersion(projectVO.getVersion());
 		project.setRelativePath(projectVO.getRelativePath());
 		project.setPathOfDependencies(projectVO.getPathOfDependencies());
 		project.setWantedPackageNames(projectVO.getWantedPackageNames());

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import io.github.css12345.sourceanalyse.persistence.entity.ASTNode;
 import io.github.css12345.sourceanalyse.persistence.entity.Method;
 import io.github.css12345.sourceanalyse.persistence.repository.ASTNodeRepository;
+import io.github.css12345.sourceanalyse.persistence.repository.MethodRepository;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.Graph;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.MethodCompare;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.State;
@@ -26,23 +27,30 @@ public class MethodComparator {
 	@Autowired
 	private ASTNodeRepository astNodeRepository;
 
+	@Autowired
+	private MethodRepository methodRepository;
+
 	public static final double THRESHOLD = 1e-6;
 
 	/**
 	 * this method is aim to set state of argument methodCompare, if field
-	 * {@linkplain MethodCompare#method1 method1} and field
-	 * {@linkplain MethodCompare#method2 method2} are not null, will calculate their
-	 * similarity.
+	 * {@linkplain MethodCompare#briefMethodInformation1 briefMethodInformation1}
+	 * and field {@linkplain MethodCompare#briefMethodInformation2
+	 * briefMethodInformation2} are not null, will calculate their similarity.
 	 * 
 	 * @param methodCompare must set the compared methods
 	 */
 	public void compare(MethodCompare methodCompare) {
-		Method method1 = methodCompare.getMethod1();
-		Method method2 = methodCompare.getMethod2();
+		Method method1 = methodRepository.findByBriefMethodInformationAndVersion(
+				methodCompare.getBriefMethodInformation1(), methodCompare.getVersion1());
+
+		Method method2 = methodRepository.findByBriefMethodInformationAndVersion(
+				methodCompare.getBriefMethodInformation2(), methodCompare.getVersion2());
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("start to compare method1 and method2 of brief method information {}",
-					method1 != null ? method1.getBriefMethodInformation() : method2.getBriefMethodInformation());
+			logger.debug(
+					"start to compare method1[briefMethodInformation={},version={}] and method2[briefMethodInformation={},version={}]",
+					methodCompare.getBriefMethodInformation1(), methodCompare.getBriefMethodInformation2());
 		}
 
 		if (method1 == null && method2 != null)
@@ -73,9 +81,10 @@ public class MethodComparator {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug(
-					"compare method1 and method2 of brief method information {} finished, state is {}, similarity is {}",
-					method1 != null ? method1.getBriefMethodInformation() : method2.getBriefMethodInformation(),
-					methodCompare.getState(), methodCompare.getSimilarity());
+					"compare method1[briefMethodInformation={},version={}] and method2[briefMethodInformation={},version={}] finished, state is {}, similarity is {}",
+					methodCompare.getBriefMethodInformation1(), methodCompare.getVersion1(),
+					methodCompare.getBriefMethodInformation2(), methodCompare.getVersion2(), methodCompare.getState(),
+					methodCompare.getSimilarity());
 		}
 	}
 

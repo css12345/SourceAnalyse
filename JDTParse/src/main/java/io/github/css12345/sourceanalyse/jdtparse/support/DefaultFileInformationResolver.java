@@ -96,6 +96,7 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 			fileInformation.setFile(new File(classInformation.getPath()));
 			fileInformation.setRootProjectPath(project.getPath());
 			fileInformation.setMethodInformations(methodInformations);
+			fileInformation.setVersion(project.getVersion());
 			fileInformations.add(fileInformation);
 
 			if (logger.isDebugEnabled()) {

@@ -9,8 +9,18 @@ public class FileInformation {
 
 	private String rootProjectPath;
 
+	private String version;
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
 	private List<MethodInformation> methodInformations = new ArrayList<>();
-	
+
 	public File getFile() {
 		return file;
 	}
@@ -37,7 +47,8 @@ public class FileInformation {
 
 	@Override
 	public String toString() {
-		return "FileInformation [file=" + file + ", rootProjectPath=" + rootProjectPath + ", methodInformations="
-				+ methodInformations + "]";
+		return "FileInformation [file=" + file + ", rootProjectPath=" + rootProjectPath + ", version=" + version
+				+ ", methodInformations=" + methodInformations + "]";
 	}
+
 }

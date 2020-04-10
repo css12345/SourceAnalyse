@@ -10,9 +10,9 @@ import org.springframework.stereotype.Repository;
 import io.github.css12345.sourceanalyse.display.dao.ProjectDao;
 import io.github.css12345.sourceanalyse.display.entity.ProjectVO;
 import io.github.css12345.sourceanalyse.display.entity.ProjectVOWrapper;
-import io.github.css12345.sourceanalyse.display.utils.CacheUtils;
 import io.github.css12345.sourceanalyse.display.utils.ProjectIDUtils;
 import io.github.css12345.sourceanalyse.display.utils.ProjectVOConverter;
+import io.github.css12345.sourceanalyse.similarityanalyse.utils.CacheUtils;
 
 @Repository
 public class ProjectDaoImpl implements ProjectDao {

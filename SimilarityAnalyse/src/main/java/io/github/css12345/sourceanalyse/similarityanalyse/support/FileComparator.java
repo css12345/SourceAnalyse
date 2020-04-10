@@ -12,9 +12,11 @@ import org.springframework.stereotype.Component;
 
 import io.github.css12345.sourceanalyse.persistence.entity.FileInformation;
 import io.github.css12345.sourceanalyse.persistence.entity.Method;
+import io.github.css12345.sourceanalyse.persistence.repository.FileInformationRepository;
 import io.github.css12345.sourceanalyse.persistence.repository.MethodRepository;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.FileCompare;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.MethodCompare;
+import io.github.css12345.sourceanalyse.similarityanalyse.utils.FileCompareCacheUtils;
 
 @Component
 public class FileComparator {
@@ -27,6 +29,9 @@ public class FileComparator {
 	@Autowired
 	private MethodRepository methodRepository;
 
+	@Autowired
+	private FileInformationRepository fileInformationRepository;
+
 	/**
 	 * this method aim to find all {@link MethodCompare} and set it for argument
 	 * fileCompare
@@ -34,15 +39,26 @@ public class FileComparator {
 	 * @param fileCompare must set the compared fileInformations
 	 */
 	public void compare(FileCompare fileCompare) {
-		FileInformation fileInformation1 = fileCompare.getFileInformation1();
-		FileInformation fileInformation2 = fileCompare.getFileInformation2();
+		String filePath1 = fileCompare.getFilePath1();
+		String filePath2 = fileCompare.getFilePath2();
 
+		if (FileCompareCacheUtils.contains(filePath1, filePath2)) {
+			FileCompare cachedFileCompare = FileCompareCacheUtils.getFileCompare(filePath1, filePath2);
+			fileCompare.setMethodCompares(cachedFileCompare.getMethodCompares());
+			fileCompare.setState(cachedFileCompare.getState());
+			
+			if (logger.isInfoEnabled()) {
+				logger.info("find cached fileCompare for filePath1:{} and filePath2:{}", filePath1, filePath2);
+			}
+			return;
+		}
+		
 		if (logger.isInfoEnabled()) {
-			logger.info("start to compare fileInformation1:{} and fileInformation2:{}",
-					fileInformation1 == null ? null : fileInformation1.getFilePath(),
-					fileInformation2 == null ? null : fileInformation2.getFilePath());
+			logger.info("start to compare filePath1:{} and filePath2:{}", filePath1, filePath2);
 		}
 
+		FileInformation fileInformation1 = fileInformationRepository.findByFilePath(filePath1, 2);
+		FileInformation fileInformation2 = fileInformationRepository.findByFilePath(filePath2, 2);
 		List<MethodCompare> methodCompares = new ArrayList<>();
 
 		String version1 = fileInformation1 == null ? null : fileInformation1.getVersion();
@@ -61,30 +77,26 @@ public class FileComparator {
 			methodCompares.add(buildMethodCompare(briefMethodInformation, version1, version2));
 
 		fileCompare.setMethodCompares(methodCompares);
-		fileCompare.setState();
+		fileCompare.judgeAndSetState();
 
 		if (logger.isInfoEnabled()) {
-			logger.info("compare fileInformation1:{} and fileInformation2:{} finished, state is {}",
-					fileInformation1 == null ? null : fileInformation1.getFilePath(),
-					fileInformation2 == null ? null : fileInformation2.getFilePath(), fileCompare.getState());
+			logger.info("compare filePath1:{} and filePath2:{} finished, state is {}", filePath1, filePath2,
+					fileCompare.getState());
+		}
+		
+		FileCompareCacheUtils.saveToCacheFile(fileCompare);
+		if (logger.isInfoEnabled()) {
+			logger.info("add fileCompare for filePath1:{} and filePath2:{} to cache file finished", filePath1, filePath2);
 		}
 	}
 
 	public MethodCompare buildMethodCompare(String briefMethodInformation, String version1, String version2) {
-		List<Method> methods = methodRepository.findByBriefMethodInformation(briefMethodInformation);
-		Method method1 = findMethod(methods, version1);
-		Method method2 = findMethod(methods, version2);
-		MethodCompare methodCompare = new MethodCompare(method1, method2);
+		Method method1 = methodRepository.findByBriefMethodInformationAndVersion(briefMethodInformation, version1);
+		Method method2 = methodRepository.findByBriefMethodInformationAndVersion(briefMethodInformation, version2);
+		MethodCompare methodCompare = new MethodCompare(method1 == null ? null : method1.getBriefMethodInformation(),
+				version1, method2 == null ? null : method2.getBriefMethodInformation(), version2);
 
 		methodComparator.compare(methodCompare);
 		return methodCompare;
-	}
-
-	private Method findMethod(List<Method> methods, String version) {
-		for (Method method : methods) {
-			if (method.getVersion().equals(version))
-				return method;
-		}
-		return null;
 	}
 }

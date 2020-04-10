@@ -15,6 +15,16 @@ public class Project {
 	 */
 	private String relativePath;
 
+	private String version;
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
 	private List<String> pathOfDependencies = new ArrayList<>();
 
 	private String pathOfDependenciesLocation;
@@ -22,7 +32,7 @@ public class Project {
 	private Set<String> wantedPackageNames = new HashSet<>();
 
 	private List<Project> modules = new ArrayList<>();
-	
+
 	private Map<String, String> classQualifiedNameLocationMap = new HashMap<>();
 
 	public String getRelativePath() {
@@ -109,19 +119,20 @@ public class Project {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		return "Project [path=" + path + ", relativePath=" + relativePath + ", pathOfDependencies=" + pathOfDependencies
-				+ ", pathOfDependenciesLocation=" + pathOfDependenciesLocation + ", wantedPackageNames="
-				+ wantedPackageNames + ", modules=" + modules + "]";
-	}
-
 	public Map<String, String> getClassQualifiedNameLocationMap() {
 		return classQualifiedNameLocationMap;
 	}
 
 	public void setClassQualifiedNameLocationMap(Map<String, String> classQualifiedNameLocationMap) {
 		this.classQualifiedNameLocationMap = classQualifiedNameLocationMap;
+	}
+
+	@Override
+	public String toString() {
+		return "Project [path=" + path + ", relativePath=" + relativePath + ", version=" + version
+				+ ", pathOfDependencies=" + pathOfDependencies + ", pathOfDependenciesLocation="
+				+ pathOfDependenciesLocation + ", wantedPackageNames=" + wantedPackageNames + ", modules=" + modules
+				+ ", classQualifiedNameLocationMap=" + classQualifiedNameLocationMap + "]";
 	}
 
 }

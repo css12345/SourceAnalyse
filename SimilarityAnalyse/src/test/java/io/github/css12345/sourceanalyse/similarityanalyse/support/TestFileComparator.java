@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import io.github.css12345.sourceanalyse.persistence.entity.FileInformation;
-import io.github.css12345.sourceanalyse.persistence.repository.FileInformationRepository;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.FileCompare;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.MethodCompare;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.State;
@@ -17,9 +15,6 @@ public class TestFileComparator {
 	@Autowired
 	private FileComparator fileComparator;
 
-	@Autowired
-	private FileInformationRepository fileInformationRepository;
-	
 //	@Autowired
 //	private ProjectSaver projectSaver;
 //	
@@ -32,12 +27,10 @@ public class TestFileComparator {
 //		for (Project project : projects) {
 //			projectSaver.saveProject(project, false);
 //		}
-		
+
 		String path1 = "D:\\tmp\\fastjson\\1.1.44\\fastjson-1.1.44\\src\\main\\java\\com\\alibaba\\fastjson\\JSON.java";
 		String path2 = "D:\\tmp\\fastjson\\1.1.157\\fastjson-1.1.157\\src\\main\\java\\com\\alibaba\\fastjson\\JSON.java";
-		FileInformation fileInformation1 = fileInformationRepository.findByFilePath(path1);
-		FileInformation fileInformation2 = fileInformationRepository.findByFilePath(path2);
-		FileCompare fileCompare = new FileCompare(fileInformation1, fileInformation2);
+		FileCompare fileCompare = new FileCompare(path1, path2);
 		fileComparator.compare(fileCompare);
 
 		System.out.println(fileCompare.getState());
@@ -45,10 +38,8 @@ public class TestFileComparator {
 			if (methodCompare.getState() == State.UNMODIFIED)
 				continue;
 
-			String briefMethodInformation1 = methodCompare.getMethod1() == null ? null
-					: methodCompare.getMethod1().getBriefMethodInformation();
-			String briefMethodInformation2 = methodCompare.getMethod2() == null ? null
-					: methodCompare.getMethod2().getBriefMethodInformation();
+			String briefMethodInformation1 = methodCompare.getBriefMethodInformation1();
+			String briefMethodInformation2 = methodCompare.getBriefMethodInformation2();
 			if (StringUtils.equals(briefMethodInformation1, briefMethodInformation2)) {
 				System.out.print(briefMethodInformation1);
 			} else {
