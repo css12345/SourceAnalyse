@@ -149,7 +149,8 @@ public class ProjectVO {
 					if (astNode instanceof AbstractTypeDeclaration) {
 						AbstractTypeDeclaration abstractTypeDeclaration = (AbstractTypeDeclaration) astNode;
 						String classQualifiedName = abstractTypeDeclaration.resolveBinding().getQualifiedName();
-						classQualifiedNameLocationMap.put(classQualifiedName, classInformation.getPath());
+						if (!classQualifiedName.equals(""))
+							classQualifiedNameLocationMap.put(classQualifiedName, classInformation.getPath());
 					}
 				}
 			});

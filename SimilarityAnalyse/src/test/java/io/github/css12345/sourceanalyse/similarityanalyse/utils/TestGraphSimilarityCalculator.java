@@ -10,11 +10,19 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.Graph;
+import io.github.css12345.sourceanalyse.similarityanalyse.support.TestProjectComparator.Config;
 import jep.NDArray;
 
+@SpringJUnitConfig(Config.class)
 public class TestGraphSimilarityCalculator {
+	
+	@Autowired
+	private GraphSimilarityCalculator graphSimilarityCalculator;
+	
 	@Test
 	public void testCalculate() {
 		Map<Long, List<Long>> initializationObject1 = new TreeMap<>();
@@ -38,22 +46,22 @@ public class TestGraphSimilarityCalculator {
 		nodeLabels2.put(2L, "H");
 		nodeLabels2.put(3L, "H");
 		nodeLabels2.put(4L, "H");
-		
+
 		Graph graph1 = new Graph(initializationObject1, nodeLabels1);
 		Graph graph2 = new Graph(initializationObject2, nodeLabels2);
-		System.out.println(GraphSimilarityCalculator.calculate(graph1, graph2));
-		
-		NDArray<long[]> edges1 = new NDArray<long[]>(new long[] {0,1,1,1,0,0,1,0,0}, 3,3);
+		System.out.println(graphSimilarityCalculator.calculate(graph1, graph2));
+
+		NDArray<long[]> edges1 = new NDArray<long[]>(new long[] { 0, 1, 1, 1, 0, 0, 1, 0, 0 }, 3, 3);
 		nodeLabels1.clear();
 		nodeLabels1.put(0L, "O");
 		nodeLabels1.put(1L, "H");
 		nodeLabels1.put(2L, "H");
-		
+
 		List<List<Long>> edges2 = new ArrayList<>();
-		edges2.add(new ArrayList<>(Arrays.asList(0L,1L,1L,1L)));
-		edges2.add(new ArrayList<>(Arrays.asList(1L,0L,0L,0L)));
-		edges2.add(new ArrayList<>(Arrays.asList(1L,0L,0L,0L)));
-		edges2.add(new ArrayList<>(Arrays.asList(1L,0L,0L,0L)));
+		edges2.add(new ArrayList<>(Arrays.asList(0L, 1L, 1L, 1L)));
+		edges2.add(new ArrayList<>(Arrays.asList(1L, 0L, 0L, 0L)));
+		edges2.add(new ArrayList<>(Arrays.asList(1L, 0L, 0L, 0L)));
+		edges2.add(new ArrayList<>(Arrays.asList(1L, 0L, 0L, 0L)));
 		nodeLabels2.clear();
 		nodeLabels2.put(0L, "O");
 		nodeLabels2.put(1L, "H");
@@ -61,6 +69,6 @@ public class TestGraphSimilarityCalculator {
 		nodeLabels2.put(3L, "H");
 		graph1 = new Graph(edges1, nodeLabels1);
 		graph2 = new Graph(edges2, nodeLabels2);
-		System.out.println(GraphSimilarityCalculator.calculate(graph1, graph2));
+		System.out.println(graphSimilarityCalculator.calculate(graph1, graph2));
 	}
 }

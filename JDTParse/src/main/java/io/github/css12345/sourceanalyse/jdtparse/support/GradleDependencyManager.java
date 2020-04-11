@@ -39,7 +39,7 @@ public class GradleDependencyManager implements DependencyManager {
 		try {
 			File projectRootFile = new File(project.getPath());
 			File buildGradleFile = new File(projectRootFile, "build.gradle");
-			String taskString = "\n\n" + FileUtils.readFileToString(params.getGradleTasksFile(), "UTF-8");
+			String taskString = "\n\n" + params.getGradleTasks();
 
 			String projectPath = ":";
 			configureProject(project, buildGradleFile, taskString, projectPath);

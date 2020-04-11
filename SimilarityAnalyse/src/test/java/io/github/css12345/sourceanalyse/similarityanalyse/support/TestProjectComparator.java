@@ -33,7 +33,7 @@ public class TestProjectComparator {
 	@EnableAutoConfiguration
 	@PropertySource("classpath:settings.properties")
 	@ComponentScan(basePackages = "io.github.css12345.sourceanalyse")
-	static class Config {
+	public static class Config {
 		@Bean
 		public Project testProject1() {
 			Project testProject1 = new Project();

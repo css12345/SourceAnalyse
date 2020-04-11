@@ -8,17 +8,35 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import io.github.css12345.sourceanalyse.jdtparse.Params;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.FileCompare;
 
-public class FileCompareCacheUtils {
+@Component
+public class FileCompareCacheUtils implements InitializingBean {
+	
+	@Autowired
+	private Params params;
 
 	private static final String FILE_COMPARES_FILEPATH = "cache/fileCompares.json";
 
 	private static Map<Pair<String, String>, FileCompare> fileCompareCache = new HashMap<>();
+	
+	private static File cacheFile;
 
-	static {
-		File cacheFile = new File(System.getProperty("user.dir"), FILE_COMPARES_FILEPATH);
+	public void loadFileCompareCache() {
+		cacheFile = new File(params.getSITE_DATA_DIR(), FILE_COMPARES_FILEPATH);
+		File cacheDirectory = cacheFile.getParentFile();
+		if (!cacheDirectory.exists())
+			cacheDirectory.mkdirs();
+		try {
+			cacheFile.createNewFile();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		List<FileCompare> fileCompares = CacheUtils.readAllFromCacheFile(cacheFile, FileCompare.class);
 		for (FileCompare fileCompare : fileCompares) {
 			fileCompareCache.put(Pair.of(fileCompare.getFilePath1(), fileCompare.getFilePath2()), fileCompare);
@@ -37,7 +55,6 @@ public class FileCompareCacheUtils {
 		boolean contained = contains(savedFileCompare.getFilePath1(), savedFileCompare.getFilePath2());
 		fileCompareCache.put(Pair.of(savedFileCompare.getFilePath1(), savedFileCompare.getFilePath2()), savedFileCompare);
 		
-		File cacheFile = new File(System.getProperty("user.dir"), FILE_COMPARES_FILEPATH);
 		if (!contained) {
 			CacheUtils.saveToCacheFile(cacheFile, savedFileCompare, true);
 		} else {
@@ -51,5 +68,10 @@ public class FileCompareCacheUtils {
 				CacheUtils.saveToCacheFile(cacheFile, fileCompare, true);
 			}
 		}
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		loadFileCompareCache();
 	}
 }

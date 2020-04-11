@@ -35,6 +35,17 @@ public class ProjectVOConverter {
 		return projectVOWrappers;
 	}
 	
+	public static Project convert(ProjectVOWrapper projectVOWrapper) {
+		Project project = new Project();
+		project.setPath(projectVOWrapper.getProjectPath());
+		project.setVersion(projectVOWrapper.getVersion());
+		project.setRelativePath(projectVOWrapper.getRelativePath());
+		project.setPathOfDependencies(projectVOWrapper.getPathOfDependencies());
+		project.setWantedPackageNames(projectVOWrapper.getWantedPackageNames());
+		project.setClassQualifiedNameLocationMap(projectVOWrapper.getClassQualifiedNameLocationMap());
+		return project;
+	}
+	
 	public static List<ProjectVO> convertTo(List<ProjectVOWrapper> projectVOWrappers) {
 		Map<String, ProjectVO> projectPathAndProjectVOMap = new HashMap<>();
 		for (ProjectVOWrapper projectVOWrapper : projectVOWrappers) {

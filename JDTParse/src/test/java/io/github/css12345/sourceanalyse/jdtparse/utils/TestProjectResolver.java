@@ -11,7 +11,6 @@ import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import io.github.css12345.sourceanalyse.jdtparse.Params;
 import io.github.css12345.sourceanalyse.jdtparse.ParamsPropertyConfig;
 import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
 import io.github.css12345.sourceanalyse.jdtparse.utils.TestProjectResolver.Config;
@@ -53,9 +52,6 @@ public class TestProjectResolver {
 	}
 
 	@Autowired
-	private Params params;
-	
-	@Autowired
 	private Project mavenProject;
 	
 	@Autowired
@@ -66,11 +62,6 @@ public class TestProjectResolver {
 	
 	@Autowired
 	private Project configuredDependencyLocationProject;
-	
-	@Test
-	public void test() {
-		assertEquals(6, params.getProjects().size());
-	}
 
 	@Test
 	public void testMavenProject() {

@@ -29,6 +29,9 @@ public class MethodComparator {
 
 	@Autowired
 	private MethodRepository methodRepository;
+	
+	@Autowired
+	private GraphSimilarityCalculator graphSimilarityCalculator;
 
 	public static final double THRESHOLD = 1e-6;
 
@@ -69,7 +72,7 @@ public class MethodComparator {
 					methodCompare.setState(State.MODIFIED);
 				}
 			} else {
-				double similarity = GraphSimilarityCalculator.calculate(graph1, graph2);
+				double similarity = graphSimilarityCalculator.calculate(graph1, graph2);
 				methodCompare.setSimilarity(similarity);
 
 				if (Math.abs(similarity - 1) <= THRESHOLD)

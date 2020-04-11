@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,13 +55,8 @@ public class DefaultFileInformationResolver implements FileInformationResolver {
 	}
 
 	private Set<String> readFromParams() {
-		try {
-			List<String> includeNodeTypes = FileUtils.readLines(params.getMethodDeclarationIncludeTypesFile(), "UTF-8");
-			return new HashSet<>(includeNodeTypes);
-		} catch (IOException e) {
-			throw new RuntimeException(String.format("read file of path %s occur an IOException",
-					params.getMethodDeclarationIncludeTypesFile()));
-		}
+		List<String> includeNodeTypes = params.getMethodDeclarationIncludeTypes();
+		return new HashSet<>(includeNodeTypes);
 	}
 
 	@Override

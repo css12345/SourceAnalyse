@@ -48,5 +48,11 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>net.harawata</groupId>
+			<artifactId>appdirs</artifactId>
+			<version>1.0.3</version>
+		</dependency>
 	</dependencies>
 </project>

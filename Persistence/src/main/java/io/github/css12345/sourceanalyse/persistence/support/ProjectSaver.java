@@ -46,26 +46,51 @@ public class ProjectSaver {
 	public int getSize() {
 		return this.size;
 	}
-	
-	public void saveProject(Project project, List<File> files, boolean jsonFileSaved) {
-		if (!jsonFileSaved) {
-			saveToJsonFile(project, files);
-		}
+
+	public void saveProject(Project project, List<File> files) {
+		List<File> notSavedDatabaseFiles = getNotSavedFilePathsOfDatabase(files);
+		if (notSavedDatabaseFiles.isEmpty())
+			return;
 		
-		convertAndSaveFileToDatabase(project, files);
+		List<File> notSavedJSONFiles = getNotSavedJSONFiles(notSavedDatabaseFiles);
+		if (notSavedDatabaseFiles.isEmpty())
+			return;
+		
+		saveToJsonFile(project, notSavedJSONFiles);
+		convertAndSaveFileToDatabase(notSavedDatabaseFiles);
+	}
+	
+	private List<File> getNotSavedFilePathsOfDatabase(List<File> files) {
+		List<File> notSavedDatabaseFiles = new ArrayList<>();
+		for (File file : files) {
+			FileInformation fileInformation = fileInformationRepository.findByFilePath(file.getAbsolutePath(), 1);
+			if (fileInformation == null)
+				notSavedDatabaseFiles.add(file);
+		}
+		return notSavedDatabaseFiles;
 	}
 
-	public void saveProject(Project project, boolean jsonFileSaved) {
-		saveProject(project, ProjectUtils.findSuffixLikeJavaFiles(project), jsonFileSaved);
+	private List<File> getNotSavedJSONFiles(List<File> files) {
+		List<File> notSavedJSONFiles = new ArrayList<>();
+		for (File file : files) {
+			String jsonFilePath = file.getAbsolutePath().replace(".java", ".json");
+			if (!new File(jsonFilePath).exists())
+				notSavedJSONFiles.add(file);
+		}
+		return notSavedJSONFiles;
+	}
+
+	public void saveProject(Project project) {
+		saveProject(project, ProjectUtils.findSuffixLikeJavaFiles(project));
 	}
 
 	protected void convertAndSaveFileToDatabase(Project project) {
 		List<File> filesOfProject = ProjectUtils.findSuffixLikeJavaFiles(project);
 
-		convertAndSaveFileToDatabase(project, filesOfProject);
+		convertAndSaveFileToDatabase(filesOfProject);
 	}
-	
-	protected void convertAndSaveFileToDatabase(Project project, List<File> files) {
+
+	protected void convertAndSaveFileToDatabase(List<File> files) {
 		long startTime = System.currentTimeMillis();
 		List<FileInformation> fileInformations = new ArrayList<>(size);
 		for (int i = 0; i <= files.size() / size; i++) {
@@ -75,7 +100,7 @@ public class ProjectSaver {
 				fileInformations.add(converterUtils.convert(files.get(j).getAbsolutePath()));
 			}
 			fileInformationRepository.saveAll(fileInformations);
-			
+
 			String dealMessage = String.format("handle data of [%d,%d), cost time is %d ms", i * size,
 					Math.min((i + 1) * size, files.size()), System.currentTimeMillis() - currentTimeStartTime);
 			if (logger.isDebugEnabled())
@@ -88,7 +113,7 @@ public class ProjectSaver {
 	protected void saveToJsonFile(Project project) {
 		saveToJsonFile(project, ProjectUtils.findSuffixLikeJavaFiles(project));
 	}
-	
+
 	protected void saveToJsonFile(Project project, List<File> files) {
 		long strartTime = System.currentTimeMillis();
 		List<io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation> fileInformations = fileInformationResolver
@@ -96,10 +121,11 @@ public class ProjectSaver {
 		if (logger.isInfoEnabled()) {
 			logger.info("file information resolve finished, cost {} ms", System.currentTimeMillis() - strartTime);
 		}
-		
+
 		strartTime = System.currentTimeMillis();
 		for (io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation fileInformation : fileInformations) {
-			FileInformationDTO fileInformationDTO = new FileInformationDTO(fileInformation, project.getClassQualifiedNameLocationMap());
+			FileInformationDTO fileInformationDTO = new FileInformationDTO(fileInformation,
+					project.getClassQualifiedNameLocationMap());
 			fileInformationDTOMapper.writeToJSONFile(fileInformationDTO);
 		}
 		if (logger.isInfoEnabled()) {

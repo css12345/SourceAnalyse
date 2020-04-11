@@ -52,7 +52,7 @@ public class TestProjectSaver {
 	
 	@Test
 	public void testSaveProject() {
-		projectSaver.saveProject(testProject1, true);
-		projectSaver.saveProject(testProject2, true);
+		projectSaver.saveProject(testProject1);
+		projectSaver.saveProject(testProject2);
 	}
 }

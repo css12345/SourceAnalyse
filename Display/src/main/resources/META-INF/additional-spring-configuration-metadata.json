@@ -21,5 +21,10 @@
     "name": "GRADLE_USER_HOME",
     "type": "java.lang.String",
     "description": "A directory absolute path for GRADLE_USER_HOME.It can be omitted."
+  },
+  {
+    "name": "site.data.dir",
+    "type": "java.lang.String",
+    "description": "A directory absolute path for save site datas.If not config, will use net.harawata.appdirs.AppDirs.getSiteDataDir('SourceAnalyse', null, null) to get dir.It can be omitted."
   }
 ]}

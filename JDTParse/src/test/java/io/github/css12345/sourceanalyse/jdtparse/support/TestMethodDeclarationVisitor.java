@@ -18,7 +18,6 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import io.github.css12345.sourceanalyse.jdtparse.Params;
 import io.github.css12345.sourceanalyse.jdtparse.ParamsPropertyConfig;
 import io.github.css12345.sourceanalyse.jdtparse.entity.MethodInformation;
-import io.github.css12345.sourceanalyse.jdtparse.support.MethodDeclarationVisitor;
 
 @SpringJUnitConfig(ParamsPropertyConfig.class)
 public class TestMethodDeclarationVisitor {
@@ -60,7 +59,7 @@ public class TestMethodDeclarationVisitor {
 				CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 				MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
 				visitor.setIncludedNodeTypes(
-						new HashSet<>(FileUtils.readLines(params.getMethodDeclarationIncludeTypesFile(), "UTF-8")));
+						new HashSet<>(params.getMethodDeclarationIncludeTypes()));
 				visitor.setValidPackageNames(new HashSet<>(new ArrayList<>(Arrays.asList("com.fruitsalesplatform"))));
 				compilationUnit.accept(visitor);
 
