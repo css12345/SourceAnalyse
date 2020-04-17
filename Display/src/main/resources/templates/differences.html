@@ -1,8 +1,415 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/general::header(~{::title},~{},~{})">
+<head
+	th:replace="fragments/general::header(~{::title},~{::link},~{::script})">
 <meta charset="UTF-8">
 <title>差异分析</title>
+<link
+	href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css"
+	rel="stylesheet">
+<link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/jquery-confirm.min.css}">
+<script th:src="@{/js/jquery-confirm.min.js}"></script>
+<script th:src="@{/js/jquery.twbsPagination.js}"></script>
+<script
+	src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script
+	src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js"></script>
+<script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
+<script type="text/javascript" src="http://d3js.org/d3.v5.min.js">
+	
+</script>
+<script type="text/javascript">
+	$(function() {
+		var url = "projects";
+		$.get(url, function(datas) {
+			var sel1 = $('#sel1')[0];
+			var sel2 = $('#sel2')[0];
+
+			var ids = new Set();
+
+			for (index in datas) {
+				if (ids.has(datas[index].id))
+					continue;
+				if (datas[index].pid != null)
+					continue;
+				sel1.options[sel1.options.length] = new Option(
+						datas[index].projectPath, datas[index].id);
+				sel2.options[sel2.options.length] = new Option(
+						datas[index].projectPath, datas[index].id);
+				ids.add(datas[index].id);
+			}
+		});
+
+		$('.showFilesOfProject').DataTable({
+			scrollY : '50vh',
+			scrollCollapse : true,
+			columnDefs : [ {
+				'targets' : 0,
+				'checkboxes' : {
+					'selectRow' : true
+				}
+			} ],
+			language : {
+				"sProcessing" : "处理中...",
+				"sLengthMenu" : "显示 _MENU_ 项结果",
+				"sZeroRecords" : "没有匹配结果",
+				"sInfo" : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+				"sInfoEmpty" : "显示第 0 至 0 项结果，共 0 项",
+				"sInfoFiltered" : "(由 _MAX_ 项结果过滤)",
+				"sInfoPostFix" : "",
+				"sSearch" : "搜索:",
+				"sUrl" : "",
+				"sEmptyTable" : "表中数据为空",
+				"sLoadingRecords" : "载入中...",
+				"sInfoThousands" : ",",
+				"oPaginate" : {
+					"sFirst" : "首页",
+					"sPrevious" : "上页",
+					"sNext" : "下页",
+					"sLast" : "末页"
+				},
+				"oAria" : {
+					"sSortAscending" : ": 以升序排列此列",
+					"sSortDescending" : ": 以降序排列此列"
+				}
+			}
+		});
+	});
+
+	function loadProjectFiles(selectedObject) {
+		var selectedIndex = selectedObject.selectedIndex;
+		var selectedProjectId = selectedObject.options[selectedIndex].value;
+		var url = "/project/" + selectedProjectId + "/files";
+		var selectedElementId = selectedObject.id;
+
+		var table;
+		if (selectedElementId == "sel1") {
+			var sel2 = $('#sel2')[0];
+			for (index in sel2.options) {
+				if (sel2.options[index].value == selectedProjectId) {
+					sel2.options[index].disabled = true;
+				} else {
+					sel2.options[index].disabled = false;
+				}
+			}
+
+			table = $('#project1FilesTable').DataTable();
+		} else {
+			var sel1 = $('#sel1')[0];
+			for (index in sel1.options) {
+				if (sel1.options[index].value == selectedProjectId) {
+					sel1.options[index].disabled = true;
+				} else {
+					sel1.options[index].disabled = false;
+				}
+			}
+
+			table = $('#project2FilesTable').DataTable();
+		}
+
+		table.clear().draw();
+
+		$.get(url, function(datas) {
+			for (index in datas) {
+				var data = [ index, datas[index] ];
+				table.row.add(data);
+			}
+			table.draw();
+		});
+
+	}
+</script>
+<script type="text/javascript">
+	var pageSize = 5;
+	var currentRequestPage = 1;
+	function compare(currentPage, size, displayType) {
+		var selectedProject1Id = $('#sel1')[0].options[$('#sel1')[0].selectedIndex].value;
+		if (selectedProject1Id == null || selectedProject1Id == "") {
+			$.alert("请选择一个项目作为项目一");
+			return;
+		}
+		var selectedProject2Id = $('#sel2')[0].options[$('#sel2')[0].selectedIndex].value;
+		if (selectedProject2Id == null || selectedProject2Id == "") {
+			$.alert("请选择一个项目作为项目二");
+			return;
+		}
+		var filePaths = [];
+		var table1 = $('#project1FilesTable').DataTable();
+		var table2 = $('#project2FilesTable').DataTable();
+		var rows_selected1 = table1.column(0).checkboxes.selected();
+		var rows_selected2 = table2.column(0).checkboxes.selected();
+		$.each(rows_selected1, function(index, rowId) {
+			var projectPath = table1.rows(rowId).data()[0][1];
+			filePaths.push(projectPath);
+		});
+
+		$.each(rows_selected2, function(index, rowId) {
+			var projectPath = table2.rows(rowId).data()[0][1];
+			filePaths.push(projectPath);
+		});
+
+		if (filePaths.length == 0) {
+			$.alert("请在项目一或项目二中选择要比较的文件");
+			return;
+		}
+
+		var totalPages = Math.ceil(filePaths.length / size);
+		if (currentPage > totalPages)
+			currentPage = 1;
+		
+		currentRequestPage = currentPage;
+		$('#pageCompare').twbsPagination('destroy');
+		$('#pageCompare').twbsPagination({
+			first : '首页',
+			prev : '上页',
+			next : '下页',
+			last : '末页',
+			initiateStartPageClick : false,
+			totalPages : totalPages,
+			startPage : currentPage,
+			visiblePages : 10,
+			onPageClick : function(event, page) {
+				compare(page, size, displayType);
+			}
+		});
+
+		var requestParams = JSON.stringify({
+			projectId1 : selectedProject1Id,
+			projectId2 : selectedProject2Id,
+			filePaths : filePaths,
+			currentPage : currentPage,
+			size : size
+		});
+
+		$.ajax({
+			type : 'POST',
+			contentType : 'application/json; charset=utf-8',
+			url : '/differences/compare',
+			data : requestParams,
+			beforeSend : function() {
+				$('#loadingSign').show();
+				if (displayType == "table")
+					setUpForTable();
+				else
+					setUpForGraph();
+			},
+			success : function(data) {
+				console.log(data);
+				if (displayType == "table")
+					displayAsTable(data);
+				else
+					displayAsGraph(data);
+			},
+			error : function(statusCode) {
+				$.alert("出错了，状态码为" + statusCode.status);
+			},
+			complete : function() {
+				$('#loadingSign').hide();
+			}
+		});
+	}
+</script>
+<script type="text/javascript">
+	function setUpForTable() {
+		$('#displayAsGraph').hide();
+		$('#displayAsTable').show();
+		$('#resultDataTable tbody').html("");
+	}
+
+	function setUpForGraph() {
+		$('#displayAsTable').hide();
+		$('#displayAsGraph').show();
+		$('#displayAsGraph svg').html("");
+	}
+</script>
+<script type="text/javascript">
+	function displayAsTable(fileCompares) {
+		for (var i = 0; i < fileCompares.length; i++) {
+			var fileCompare = fileCompares[i];
+			for (var j = 0; j < fileCompare.methodCompares.length; j++) {
+				var methodCompare = fileCompare.methodCompares[j];
+				$('#resultDataTable')
+						.append(
+								'<tr><td>'
+										+ getValueExpectNull(fileCompare.filePath1)
+										+ '</td><td>'
+										+ getValueExpectNull(fileCompare.filePath2)
+										+ '</td><td>'
+										+ fileCompare.state
+										+ '</td><td>'
+										+ getValueExpectNull(methodCompare.briefMethodInformation1)
+										+ '</td><td>'
+										+ getValueExpectNull(methodCompare.version1)
+										+ '</td><td>'
+										+ getValueExpectNull(methodCompare.briefMethodInformation2)
+										+ '</td><td>'
+										+ getValueExpectNull(methodCompare.version2)
+										+ '</td><td>' + methodCompare.state
+										+ '</td><td>'
+										+ methodCompare.similarity
+										+ '</td></tr>');
+			}
+		}
+	}
+
+	function getValueExpectNull(value) {
+		if (value == null)
+			return "";
+		return value;
+	}
+	
+	function setNodesAndLinks(nodes, links, fileCompares) {
+		for (var i = 0; i < fileCompares.length; i++) {
+			var fileCompareNode = new Object();
+			var fileCompare = fileCompares[i];
+			fileCompareNode.id = fileCompare.filePath1 + '-'
+					+ fileCompare.filePath2;
+			fileCompareNode.filePath1 = fileCompare.filePath1;
+			fileCompareNode.filePath2 = fileCompare.filePath2;
+			fileCompareNode.state = fileCompare.state;
+			fileCompareNode.type = "fileCompare";
+			nodes.push(fileCompareNode);
+
+			for (var j = 0; j < fileCompare.methodCompares.length; j++) {
+				var methodCompareNode = new Object();
+				var methodCompare = fileCompare.methodCompares[j];
+				methodCompareNode.id = methodCompare.briefMethodInformation1
+						+ '-' + methodCompare.version1 + '-'
+						+ methodCompare.briefMethodInformation2 + '-'
+						+ methodCompare.version2;
+				methodCompareNode.briefMethodInformation1 = methodCompare.briefMethodInformation1;
+				methodCompareNode.version1 = methodCompare.version1;
+				methodCompareNode.briefMethodInformation2 = methodCompare.briefMethodInformation2;
+				methodCompareNode.version2 = methodCompare.version2;
+				methodCompareNode.state = methodCompare.state;
+				methodCompareNode.similarity = methodCompare.similarity;
+				methodCompareNode.type = "methodCompare";
+				nodes.push(methodCompareNode);
+				
+				var link = new Object();
+				link.source = fileCompareNode.id;
+				link.target = methodCompareNode.id;
+				links.push(link);
+			}
+		}
+	}
+	
+	function getNodeColor(node) {
+		if (node.state == "ADD")
+			return "LightGreen";
+		else if (node.state == "DELETE")
+			return "pink";
+		else if (node.state == "MODIFIED")
+			return "red";
+		else
+			return "LightBlue";
+	}
+	
+	function getNodeRadius(node) {
+		return node.type == "fileCompare" ? 20 : 10;
+	}
+	
+	function getValidX(node, width) {
+		return Math.max(getNodeRadius(node), Math.min(width - getNodeRadius(node), node.x));
+	}
+	
+	function getValidY(node, height) {
+		return Math.max(getNodeRadius(node), Math.min(height - getNodeRadius(node), node.y));
+	}
+	
+	function showSelectNode(node) {
+		var content = "";
+		if (node.type == "fileCompare") {
+			content += "文件一路径：" + node.filePath1 + "<br>";
+			content += "文件二路径：" + node.filePath2 + "<br>";
+			content += "状态：" + node.state + "<br>";
+		} else {
+			content += "方法信息一：" + node.briefMethodInformation1 + "<br>";
+			content += "版本一：" + node.version1 + "<br>";
+			content += "方法信息二：" + node.briefMethodInformation2 + "<br>";
+			content += "版本二：" + node.version2 + "<br>";
+			content += "状态：" + node.state + "<br>";
+			content += "相似度：" + node.similarity + "<br>";
+		}
+		$('#compareNodeInformation').html(content);
+		$('#showCompareNode').modal('show');
+	}
+
+	function displayAsGraph(fileCompares) {
+		var nodes = [];
+		var links = [];
+		setNodesAndLinks(nodes, links, fileCompares);
+		console.log(nodes);
+		console.log(links);
+		var width = $('#displayAsGraph').innerWidth();
+		var height = Math.max($('#displayAsGraph').innerHeight(), 600);
+
+		var svg = d3.select('svg');
+		svg.attr('width', width).attr('height', height);
+		
+		// simulation setup with all forces
+		var linkForce = d3
+		  .forceLink()
+		  .id(function (link) { return link.id })
+		  .distance(100)
+
+		var simulation = d3
+		  .forceSimulation()
+		  .force('link', linkForce)
+		  .force('charge', d3.forceManyBody().strength(-10))
+		  .force('center', d3.forceCenter(width / 2, height / 2))
+		  
+		  
+		var dragDrop = d3.drag().on('start', function (node) {
+		  node.fx = node.x
+		  node.fy = node.y
+		}).on('drag', function (node) {
+		  simulation.alphaTarget(0.7).restart()
+		  node.fx = d3.event.x
+		  node.fy = d3.event.y
+		}).on('end', function (node) {
+		  if (!d3.event.active) {
+		    simulation.alphaTarget(0)
+		  }
+		  node.fx = null
+		  node.fy = null
+		})
+
+		var linkElements = svg.append("g")
+			.attr("class", "links")
+		  	.selectAll("line")
+		  	.data(links)
+		  	.enter().append("line")
+		  	.attr("stroke-width", 1)
+		  	.attr("stroke", "rgba(50, 50, 50, 0.2)")
+
+		var nodeElements = svg.append("g")
+			.attr("class", "nodes")
+		  	.selectAll("circle")
+		  	.data(nodes)
+		  	.enter().append("circle")
+		  	.attr("r", getNodeRadius)
+		  	.attr("fill", getNodeColor)
+		  	.call(dragDrop)
+    	  	.on('click', showSelectNode)
+
+		simulation.nodes(nodes).on('tick', () => {
+		  nodeElements
+		  	.attr("cx", function(node) {return getValidX(node, width) })
+	        .attr("cy", function(node) {return getValidY(node, height) })
+	      
+		  linkElements
+		  	.attr("x1", function(link) { return getValidX(link.source, width) })
+	        .attr("y1", function(link) { return getValidY(link.source, height) })
+	        .attr("x2", function(link) { return getValidX(link.target, width) })
+	        .attr("y2", function(link) { return getValidY(link.target, height) })
+		})
+
+		simulation.force("link").links(links)
+
+	}
+</script>
 </head>
 <body>
 	<div class="lyear-layout-web">
@@ -12,18 +419,137 @@
 			<main class="lyear-layout-content">
 				<div class="container-fluid">
 					<div class="row">
-						<div class="col-lg-12">
+						<div class="col-md-6">
 							<div class="card">
 								<div class="card-body">
+									<div class="input-group">
+										<label for="sel1">项目一:</label> <select class="form-control"
+											id="sel1" onchange="loadProjectFiles(this)">
+											<option disabled selected value="" style="display: none">--
+												选择一个项目 --</option>
+										</select>
+									</div>
+									<div class="card-body">
+										<div class="table-responsive">
+											<table class="table table-bordered showFilesOfProject"
+												id="project1FilesTable">
+												<thead>
+													<tr>
+														<th></th>
+														<th>路径</th>
+													</tr>
+												</thead>
+												<tbody>
 
+												</tbody>
+											</table>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
 
+						<div class="col-md-6">
+							<div class="card">
+								<div class="card-body">
+									<div class="input-group">
+										<label for="sel2">项目二:</label> <select class="form-control"
+											id="sel2" onchange="loadProjectFiles(this)">
+											<option disabled selected value="" style="display: none">--
+												选择一个项目 --</option>
+										</select>
+									</div>
+
+									<div class="card-body">
+										<div class="table-responsive">
+											<table class="table table-bordered showFilesOfProject"
+												id="project2FilesTable">
+												<thead>
+													<tr>
+														<th></th>
+														<th>路径</th>
+													</tr>
+												</thead>
+												<tbody>
+
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-12">
+							<div class="card">
+								<div class="card-header">
+									<h4>比较结果</h4>
+									<div class="pull-right">
+										<a class="btn btn-primary m-r-10"
+											href="javascript:compare(1,pageSize,'graph')">比较选中文件</a> <a
+											href="javascript:compare(currentRequestPage,pageSize,'graph')"
+											class="btn btn-primary m-r-10"><i
+											class="mdi mdi-vector-polygon"></i>图</a> <a
+											href="javascript:compare(currentRequestPage,pageSize,'table')"
+											class="btn btn-primary"><i class="mdi mdi-table"></i>表</a>
+									</div>
+								</div>
+								<div class="card-body">
+									<div id="loadingSign" style="display: none">
+										<h4>loading...</h4>
+									</div>
+									<div id="displayAsTable" class="table-responsive scroll-y"
+										style="height: 300px; overflow-y: scroll; display: none;">
+										<table class="table table-bordered" id="resultDataTable">
+											<thead>
+												<tr id="template">
+													<th class="filePath1">文件一路径</th>
+													<th class="filePath2">文件二路径</th>
+													<th class="fileState">文件状态</th>
+													<th class="briefMethodInformation1">方法信息一</th>
+													<th class="version1">版本一</th>
+													<th class="briefMethodInformation2">方法信息二</th>
+													<th class="version2">版本二</th>
+													<th class="methodState">方法状态</th>
+													<th class="methodSimilarity">方法相似度</th>
+												</tr>
+											</thead>
+											<tbody>
+
+											</tbody>
+										</table>
+									</div>
+									<div id="displayAsGraph" style="display: none;">
+										<svg></svg>
+										<div class="modal fade" id="showCompareNode" tabindex="-1"
+											role="dialog" aria-labelledby="myModalLabel">
+											<div class="modal-dialog" role="document">
+												<div class="modal-content">
+													<div class="modal-header">
+														<button type="button" class="close" data-dismiss="modal"
+															aria-label="Close">
+															<span aria-hidden="true">&times;</span>
+														</button>
+														<h4 class="modal-title" id="myModalLabel">节点信息</h4>
+													</div>
+													<div id="compareNodeInformation" class="modal-body">节点信息</div>
+													<div class="modal-footer">
+														<button type="button" class="btn btn-default"
+															data-dismiss="modal">关闭</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<ul class="pagination" id="pageCompare">
+
+									</ul>
+								</div>
+
+							</div>
+						</div>
 					</div>
-
 				</div>
-
 			</main>
 		</div>
 	</div>

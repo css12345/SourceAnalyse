@@ -1,7 +1,5 @@
 package io.github.css12345.sourceanalyse.similarityanalyse.support;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -37,8 +35,10 @@ public class FileComparator {
 	 * fileCompare
 	 * 
 	 * @param fileCompare must set the compared fileInformations
+	 * @param version1 
+	 * @param version2 
 	 */
-	public void compare(FileCompare fileCompare) {
+	public void compare(FileCompare fileCompare, String version1, String version2) {
 		String filePath1 = fileCompare.getFilePath1();
 		String filePath2 = fileCompare.getFilePath2();
 
@@ -46,23 +46,19 @@ public class FileComparator {
 			FileCompare cachedFileCompare = FileCompareCacheUtils.getFileCompare(filePath1, filePath2);
 			fileCompare.setMethodCompares(cachedFileCompare.getMethodCompares());
 			fileCompare.setState(cachedFileCompare.getState());
-			
+
 			if (logger.isInfoEnabled()) {
 				logger.info("find cached fileCompare for filePath1:{} and filePath2:{}", filePath1, filePath2);
 			}
 			return;
 		}
-		
+
 		if (logger.isInfoEnabled()) {
 			logger.info("start to compare filePath1:{} and filePath2:{}", filePath1, filePath2);
 		}
 
 		FileInformation fileInformation1 = fileInformationRepository.findByFilePath(filePath1, 2);
 		FileInformation fileInformation2 = fileInformationRepository.findByFilePath(filePath2, 2);
-		List<MethodCompare> methodCompares = new ArrayList<>();
-
-		String version1 = fileInformation1 == null ? null : fileInformation1.getVersion();
-		String version2 = fileInformation2 == null ? null : fileInformation2.getVersion();
 
 		Set<String> briefMethodInformationSet = new TreeSet<>();
 		if (fileInformation1 != null) {
@@ -73,20 +69,24 @@ public class FileComparator {
 			for (Method method : fileInformation2.getMethods())
 				briefMethodInformationSet.add(method.getBriefMethodInformation());
 		}
-		for (String briefMethodInformation : briefMethodInformationSet)
-			methodCompares.add(buildMethodCompare(briefMethodInformation, version1, version2));
-
-		fileCompare.setMethodCompares(methodCompares);
+		for (String briefMethodInformation : briefMethodInformationSet) {
+			MethodCompare methodCompare = buildMethodCompare(briefMethodInformation, version1, version2);
+			if (!fileCompare.getMethodCompares().contains(methodCompare)) {
+				methodComparator.compare(methodCompare);
+				fileCompare.getMethodCompares().add(methodCompare);
+			}
+		}
 		fileCompare.judgeAndSetState();
 
 		if (logger.isInfoEnabled()) {
 			logger.info("compare filePath1:{} and filePath2:{} finished, state is {}", filePath1, filePath2,
 					fileCompare.getState());
 		}
-		
+
 		FileCompareCacheUtils.saveToCacheFile(fileCompare);
 		if (logger.isInfoEnabled()) {
-			logger.info("add fileCompare for filePath1:{} and filePath2:{} to cache file finished", filePath1, filePath2);
+			logger.info("add fileCompare for filePath1:{} and filePath2:{} to cache file finished", filePath1,
+					filePath2);
 		}
 	}
 
@@ -96,7 +96,6 @@ public class FileComparator {
 		MethodCompare methodCompare = new MethodCompare(method1 == null ? null : method1.getBriefMethodInformation(),
 				version1, method2 == null ? null : method2.getBriefMethodInformation(), version2);
 
-		methodComparator.compare(methodCompare);
 		return methodCompare;
 	}
 }

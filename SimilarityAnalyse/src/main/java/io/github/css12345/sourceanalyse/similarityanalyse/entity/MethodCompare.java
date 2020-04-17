@@ -1,6 +1,10 @@
 package io.github.css12345.sourceanalyse.similarityanalyse.entity;
 
-public class MethodCompare {
+import java.util.Objects;
+
+import org.apache.commons.lang3.builder.CompareToBuilder;
+
+public class MethodCompare implements Comparable<MethodCompare> {
 	private String briefMethodInformation1;
 
 	private String version1;
@@ -71,6 +75,34 @@ public class MethodCompare {
 
 	public void setSimilarity(double similarity) {
 		this.similarity = similarity;
+	}
+
+	@Override
+	public int compareTo(MethodCompare o) {
+		return new CompareToBuilder().append(briefMethodInformation1, o.briefMethodInformation1)
+				.append(briefMethodInformation2, o.briefMethodInformation2)
+				.append(version1, o.version1)
+				.append(version2, o.version2)
+				.toComparison();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(briefMethodInformation1, briefMethodInformation2, version1, version2);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MethodCompare other = (MethodCompare) obj;
+		return Objects.equals(briefMethodInformation1, other.briefMethodInformation1)
+				&& Objects.equals(briefMethodInformation2, other.briefMethodInformation2)
+				&& Objects.equals(version1, other.version1) && Objects.equals(version2, other.version2);
 	}
 
 }

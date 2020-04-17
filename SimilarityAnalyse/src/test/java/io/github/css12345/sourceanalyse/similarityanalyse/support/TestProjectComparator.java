@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,7 @@ public class TestProjectComparator {
 		projectCompare.setProject2(testProject2);
 		projectComparator.compare(projectCompare);
 
-		List<FileCompare> fileCompares = projectCompare.getFileCompares();
+		Set<FileCompare> fileCompares = projectCompare.getFileCompares();
 		for (FileCompare fileCompare : fileCompares) {
 			if (fileCompare.getState() == State.UNMODIFIED)
 				continue;

@@ -3,6 +3,7 @@ package io.github.css12345.sourceanalyse.display.dao.impl;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -15,6 +16,8 @@ import io.github.css12345.sourceanalyse.display.entity.ProjectVOWrapper;
 import io.github.css12345.sourceanalyse.display.utils.ProjectIDUtils;
 import io.github.css12345.sourceanalyse.display.utils.ProjectVOConverter;
 import io.github.css12345.sourceanalyse.jdtparse.Params;
+import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
+import io.github.css12345.sourceanalyse.jdtparse.utils.ProjectUtils;
 import io.github.css12345.sourceanalyse.similarityanalyse.utils.CacheUtils;
 
 @Repository
@@ -87,4 +90,21 @@ public class ProjectDaoImpl implements ProjectDao, InitializingBean {
 		}
 	}
 
+	@Override
+	public List<String> getFilesOfProject(String projectId) {
+		Project project = getProjectById(projectId);
+		List<File> filesOfProject = ProjectUtils.findSuffixLikeJavaFiles(project);
+		return filesOfProject.stream().map(file -> file.getAbsolutePath()).collect(Collectors.toList());
+	}
+
+	@Override
+	public Project getProjectById(String projectId) {
+		List<ProjectVOWrapper> projectVOWrappers = getAll();
+		for (ProjectVOWrapper projectVOWrapper : projectVOWrappers) {
+			if (projectVOWrapper.getId().equals(projectId)) {
+				return ProjectVOConverter.convert(projectVOWrapper);
+			}
+		}
+		throw new IllegalArgumentException("can't find project for id " + projectId);
+	}
 }

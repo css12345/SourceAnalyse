@@ -40,6 +40,12 @@ public class ProjectController {
 		return projectDao.getAll();
 	}
 	
+	@GetMapping("project/{projectId}/files")
+	@ResponseBody
+	public List<String> getFilesOfProject(@PathVariable String projectId) {
+		return projectDao.getFilesOfProject(projectId);
+	}
+	
 	@GetMapping("projects/delete/{projectId}")
 	@ResponseBody
 	public void delete(@PathVariable String projectId) {

@@ -1,7 +1,7 @@
 package io.github.css12345.sourceanalyse.similarityanalyse.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
 
@@ -10,7 +10,7 @@ public class ProjectCompare {
 
 	private Project project2;
 
-	private List<FileCompare> fileCompares = new ArrayList<>();
+	private Set<FileCompare> fileCompares = new TreeSet<>();
 
 	public ProjectCompare(Project project1, Project project2) {
 		this.project1 = project1;
@@ -18,7 +18,7 @@ public class ProjectCompare {
 	}
 
 	public ProjectCompare() {
-		
+
 	}
 
 	public Project getProject1() {
@@ -37,11 +37,11 @@ public class ProjectCompare {
 		this.project2 = project2;
 	}
 
-	public List<FileCompare> getFileCompares() {
+	public Set<FileCompare> getFileCompares() {
 		return fileCompares;
 	}
 
-	public void setFileCompares(List<FileCompare> fileCompares) {
+	public void setFileCompares(Set<FileCompare> fileCompares) {
 		this.fileCompares = fileCompares;
 	}
 

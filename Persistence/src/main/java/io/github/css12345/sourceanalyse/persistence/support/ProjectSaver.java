@@ -34,32 +34,19 @@ public class ProjectSaver {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	/**
-	 * every time convert and save how many files to the database
-	 */
-	private int size = 10;
-
-	public void setSize(int size) {
-		this.size = size;
-	}
-
-	public int getSize() {
-		return this.size;
-	}
-
 	public void saveProject(Project project, List<File> files) {
 		List<File> notSavedDatabaseFiles = getNotSavedFilePathsOfDatabase(files);
 		if (notSavedDatabaseFiles.isEmpty())
 			return;
-		
+
 		List<File> notSavedJSONFiles = getNotSavedJSONFiles(notSavedDatabaseFiles);
 		if (notSavedDatabaseFiles.isEmpty())
 			return;
-		
+
 		saveToJsonFile(project, notSavedJSONFiles);
-		convertAndSaveFileToDatabase(notSavedDatabaseFiles);
+		convertAndSaveFileToDatabase(project, notSavedDatabaseFiles);
 	}
-	
+
 	private List<File> getNotSavedFilePathsOfDatabase(List<File> files) {
 		List<File> notSavedDatabaseFiles = new ArrayList<>();
 		for (File file : files) {
@@ -84,42 +71,28 @@ public class ProjectSaver {
 		saveProject(project, ProjectUtils.findSuffixLikeJavaFiles(project));
 	}
 
-	protected void convertAndSaveFileToDatabase(Project project) {
+	public void convertAndSaveFileToDatabase(Project project) {
 		List<File> filesOfProject = ProjectUtils.findSuffixLikeJavaFiles(project);
 
-		convertAndSaveFileToDatabase(filesOfProject);
+		convertAndSaveFileToDatabase(project, filesOfProject);
 	}
 
-	protected void convertAndSaveFileToDatabase(List<File> files) {
-		long startTime = System.currentTimeMillis();
-		List<FileInformation> fileInformations = new ArrayList<>(size);
-		for (int i = 0; i <= files.size() / size; i++) {
-			fileInformations.clear();
-			long currentTimeStartTime = System.currentTimeMillis();
-			for (int j = i * size; j < Math.min((i + 1) * size, files.size()); j++) {
-				fileInformations.add(converterUtils.convert(files.get(j).getAbsolutePath()));
-			}
-			fileInformationRepository.saveAll(fileInformations);
-
-			String dealMessage = String.format("handle data of [%d,%d), cost time is %d ms", i * size,
-					Math.min((i + 1) * size, files.size()), System.currentTimeMillis() - currentTimeStartTime);
-			if (logger.isDebugEnabled())
-				logger.debug(dealMessage);
+	public void convertAndSaveFileToDatabase(Project project, List<File> files) {
+		for (File file : files) {
+			converterUtils.convertAndSave(project, file.getAbsolutePath());
 		}
-		if (logger.isInfoEnabled())
-			logger.info("save to database cost time {} ms", System.currentTimeMillis() - startTime);
 	}
 
-	protected void saveToJsonFile(Project project) {
+	public void saveToJsonFile(Project project) {
 		saveToJsonFile(project, ProjectUtils.findSuffixLikeJavaFiles(project));
 	}
 
-	protected void saveToJsonFile(Project project, List<File> files) {
+	public void saveToJsonFile(Project project, List<File> files) {
 		long strartTime = System.currentTimeMillis();
 		List<io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation> fileInformations = fileInformationResolver
 				.getFileInformations(files, project);
 		if (logger.isInfoEnabled()) {
-			logger.info("file information resolve finished, cost {} ms", System.currentTimeMillis() - strartTime);
+			logger.info("file information of files {} resolve finished, cost {} ms", files, System.currentTimeMillis() - strartTime);
 		}
 
 		strartTime = System.currentTimeMillis();
@@ -129,7 +102,7 @@ public class ProjectSaver {
 			fileInformationDTOMapper.writeToJSONFile(fileInformationDTO);
 		}
 		if (logger.isInfoEnabled()) {
-			logger.info("save to json file finished, cost {} ms", System.currentTimeMillis() - strartTime);
+			logger.info("save to json files {} finished, cost {} ms", files, System.currentTimeMillis() - strartTime);
 		}
 	}
 }

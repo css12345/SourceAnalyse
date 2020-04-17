@@ -31,7 +31,7 @@ public class TestFileComparator {
 		String path1 = "D:\\tmp\\fastjson\\1.1.44\\fastjson-1.1.44\\src\\main\\java\\com\\alibaba\\fastjson\\JSON.java";
 		String path2 = "D:\\tmp\\fastjson\\1.1.157\\fastjson-1.1.157\\src\\main\\java\\com\\alibaba\\fastjson\\JSON.java";
 		FileCompare fileCompare = new FileCompare(path1, path2);
-		fileComparator.compare(fileCompare);
+		fileComparator.compare(fileCompare, "1.1.44", "1.1.157");
 
 		System.out.println(fileCompare.getState());
 		for (MethodCompare methodCompare : fileCompare.getMethodCompares()) {

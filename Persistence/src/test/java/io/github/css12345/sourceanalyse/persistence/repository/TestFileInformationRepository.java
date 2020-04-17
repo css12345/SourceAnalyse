@@ -79,7 +79,7 @@ public class TestFileInformationRepository {
 		}
 
 		for (io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation fileInformation : fileInformations) {
-			fileInformationRepository.save(converterUtils.convert(fileInformation.getFile().getAbsolutePath()));
+			fileInformationRepository.save(converterUtils.convertAndSave(testProject1, fileInformation.getFile().getAbsolutePath()));
 		}
 
 	}

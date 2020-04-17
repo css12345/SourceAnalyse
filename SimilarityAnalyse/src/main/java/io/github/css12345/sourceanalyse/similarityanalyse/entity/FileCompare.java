@@ -1,15 +1,18 @@
 package io.github.css12345.sourceanalyse.similarityanalyse.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
-public class FileCompare {
+import org.apache.commons.lang3.builder.CompareToBuilder;
+
+public class FileCompare implements Comparable<FileCompare> {
 
 	private String filePath1;
 
 	private String filePath2;
 
-	private List<MethodCompare> methodCompares = new ArrayList<>();
+	private Set<MethodCompare> methodCompares = new TreeSet<>();
 
 	private State state;
 
@@ -28,11 +31,11 @@ public class FileCompare {
 
 	}
 
-	public List<MethodCompare> getMethodCompares() {
+	public Set<MethodCompare> getMethodCompares() {
 		return methodCompares;
 	}
 
-	public void setMethodCompares(List<MethodCompare> methodCompares) {
+	public void setMethodCompares(Set<MethodCompare> methodCompares) {
 		this.methodCompares = methodCompares;
 	}
 
@@ -61,7 +64,7 @@ public class FileCompare {
 	}
 
 	public void judgeAndSetState() {
-		if (filePath1 != null && filePath1 == null)
+		if (filePath1 != null && filePath2 == null)
 			state = State.DELETE;
 		else if (filePath1 == null && filePath2 != null)
 			state = State.ADD;
@@ -79,6 +82,29 @@ public class FileCompare {
 			else
 				state = State.MODIFIED;
 		}
+	}
+
+	@Override
+	public int compareTo(FileCompare o) {
+		return new CompareToBuilder().append(filePath1, o.filePath1)
+				.append(filePath2, o.filePath2).toComparison();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(filePath1, filePath2);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FileCompare other = (FileCompare) obj;
+		return Objects.equals(filePath1, other.filePath1) && Objects.equals(filePath2, other.filePath2);
 	}
 
 }

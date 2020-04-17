@@ -36,10 +36,18 @@ public class DifferenceDaoImpl implements DifferenceDao {
 		List<File> filesOfProject1 = new ArrayList<>();
 		List<File> filesOfProject2 = new ArrayList<>();
 		for (File file : files) {
-			if (allFilesOfProject1.contains(file))
+			if (allFilesOfProject1.contains(file)) {
 				filesOfProject1.add(file);
-			else if (allFilesOfProject2.contains(file))
+				final String anotherPath = projectComparator.getAnotherPath(project1, project2, file.getAbsolutePath());
+				if (anotherPath != null)
+					filesOfProject2.add(new File(anotherPath));
+			}
+			else if (allFilesOfProject2.contains(file)) {
 				filesOfProject2.add(file);
+				final String anotherPath = projectComparator.getAnotherPath(project2, project1, file.getAbsolutePath());
+				if (anotherPath != null)
+					filesOfProject1.add(new File(anotherPath));
+			}
 			else {
 				throw new IllegalArgumentException("file " + file.getAbsolutePath() + " neither in project1 "
 						+ project1.getPath() + " nor in project2" + project2.getPath());
@@ -50,7 +58,7 @@ public class DifferenceDaoImpl implements DifferenceDao {
 
 		ProjectCompare projectCompare = new ProjectCompare(project1, project2);
 		projectComparator.compare(projectCompare, filePaths);
-		return projectCompare.getFileCompares();
+		return new ArrayList<>(projectCompare.getFileCompares());
 	}
 
 }

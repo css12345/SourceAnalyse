@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import io.github.css12345.sourceanalyse.display.dao.DifferenceDao;
+import io.github.css12345.sourceanalyse.display.dao.ProjectDao;
 import io.github.css12345.sourceanalyse.display.utils.ProjectIDUtils;
 import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
 
@@ -16,15 +17,15 @@ import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
 public class TestDifferenceController {
 	@Autowired
 	private DifferenceDao differenceDao;
-
+	
 	@Autowired
-	private DifferenceController differenceController;
+	private ProjectDao projectDao;
 
 	@Test
 	public void testCompareFiles() {
-		Project project1 = differenceController
+		Project project1 = projectDao
 				.getProjectById(ProjectIDUtils.getIDByProjectPath("D:\\tmp\\fastjson\\1.1.44\\fastjson-1.1.44"));
-		Project project2 = differenceController
+		Project project2 = projectDao
 				.getProjectById(ProjectIDUtils.getIDByProjectPath("D:\\tmp\\fastjson\\1.1.157\\fastjson-1.1.157"));
 		List<String> filePaths = new ArrayList<>(
 				Arrays.asList("\\fastjson-1.1.44\\src\\main\\java\\com\\alibaba\\fastjson\\JSON.java",
