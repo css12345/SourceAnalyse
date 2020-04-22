@@ -3,17 +3,14 @@ package io.github.css12345.sourceanalyse.persistence.entity;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
-import org.neo4j.ogm.annotation.GeneratedValue;
-import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 @NodeEntity
 public class Method {
-	@Id
-	@GeneratedValue
-	private Long id;
+	private String id = UUID.randomUUID().toString();
 
 	private String filePath;
 
@@ -39,6 +36,10 @@ public class Method {
 		this.filePath = filePath;
 		this.version = version;
 		this.briefMethodInformation = briefMethodInformation;
+	}
+
+	public String getId() {
+		return id;
 	}
 
 	public void invocate(Method method) {
@@ -104,7 +105,7 @@ public class Method {
 		stringBuilder.append(briefMethodInformation);
 		stringBuilder.append(", methodInvocations=");
 		stringBuilder.append("[");
-		for (int i = 0;i < methodInvocations.size();i++) {
+		for (int i = 0; i < methodInvocations.size(); i++) {
 			Method methodInvocation = methodInvocations.get(i);
 			stringBuilder.append(methodInvocation.getFilePath());
 			stringBuilder.append("-");

@@ -53,7 +53,7 @@
 												placeholder="依赖项路径，以回车间隔（非必填项）" th:field="*{inputPathOfDependencies}"></textarea>
 										</div>
 										<div class="form-group col-md-12">
-											<button type="submit" class="btn btn-primary">确 定</button>
+											<button type="submit" class="btn btn-primary" id="submitProject" onclick="$('#submitProject').addClass('disabled')">确 定</button>
 											<button type="button" class="btn btn-default"
 												onclick="javascript:history.back(-1);return false;">返
 												回</button>

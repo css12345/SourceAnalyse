@@ -33,6 +33,60 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>3.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>3.3.7</version>
+		</dependency> 
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>twbs-pagination</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>jquery-confirm</artifactId>
+			<version>3.3.2</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/jquery-confirm-3.3.2.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>jquery-datatables-checkboxes</artifactId>
+			<version>1.1.2</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/jquery-datatables-checkboxes-1.1.2.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>d3js</artifactId>
+			<version>5.9.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>datatables</artifactId>
+			<version>1.10.20</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap-table</artifactId>
+			<version>1.15.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>jquery-treegrid</artifactId>
+			<version>0.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>webjars-locator</artifactId>
+			<version>0.38</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -40,6 +94,9 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				 <configuration>
+				    <includeSystemScope>true</includeSystemScope>
+				  </configuration>
 			</plugin>
 		</plugins>
 	</build>

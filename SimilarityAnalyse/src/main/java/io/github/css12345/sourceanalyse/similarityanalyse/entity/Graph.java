@@ -8,19 +8,19 @@ import jep.NDArray;
 public class Graph {
 	private Object initializationObject;
 
-	private Map<Long, String> nodeLabels;
+	private Map<String, String> nodeLabels;
 
-	public Graph(Map<Long, List<Long>> initializationObject, Map<Long, String> nodeLabels) {
+	public Graph(Map<String, List<String>> initializationObject, Map<String, String> nodeLabels) {
 		this.initializationObject = initializationObject;
 		this.nodeLabels = nodeLabels;
 	}
 	
-	public Graph(List<List<Long>> initializationObject, Map<Long, String> nodeLabels) {
+	public Graph(List<List<String>> initializationObject, Map<String, String> nodeLabels) {
 		this.initializationObject = initializationObject;
 		this.nodeLabels = nodeLabels;
 	}
 	
-	public Graph(NDArray<long[]> initializationObject, Map<Long, String> nodeLabels) {
+	public Graph(NDArray<long[]> initializationObject, Map<String, String> nodeLabels) {
 		this.initializationObject = initializationObject;
 		this.nodeLabels = nodeLabels;
 	}
@@ -29,7 +29,7 @@ public class Graph {
 		return initializationObject;
 	}
 
-	public Map<Long, String> getNodeLabels() {
+	public Map<String, String> getNodeLabels() {
 		return nodeLabels;
 	}
 }

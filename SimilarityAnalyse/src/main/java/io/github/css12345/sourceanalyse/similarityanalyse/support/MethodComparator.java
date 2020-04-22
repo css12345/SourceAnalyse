@@ -17,6 +17,7 @@ import io.github.css12345.sourceanalyse.persistence.repository.MethodRepository;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.Graph;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.MethodCompare;
 import io.github.css12345.sourceanalyse.similarityanalyse.entity.State;
+import io.github.css12345.sourceanalyse.similarityanalyse.utils.FileCompareCacheUtils;
 import io.github.css12345.sourceanalyse.similarityanalyse.utils.GraphSimilarityCalculator;
 
 @Component
@@ -29,7 +30,7 @@ public class MethodComparator {
 
 	@Autowired
 	private MethodRepository methodRepository;
-	
+
 	@Autowired
 	private GraphSimilarityCalculator graphSimilarityCalculator;
 
@@ -44,6 +45,23 @@ public class MethodComparator {
 	 * @param methodCompare must set the compared methods
 	 */
 	public void compare(MethodCompare methodCompare) {
+		if (FileCompareCacheUtils.contains(methodCompare.getBriefMethodInformation1(), methodCompare.getVersion1(),
+				methodCompare.getBriefMethodInformation2(), methodCompare.getVersion2())) {
+			MethodCompare cachedMethodCompare = FileCompareCacheUtils.getMethodCompare(
+					methodCompare.getBriefMethodInformation1(), methodCompare.getVersion1(),
+					methodCompare.getBriefMethodInformation2(), methodCompare.getVersion2());
+			methodCompare.setState(cachedMethodCompare.getState());
+			methodCompare.setSimilarity(cachedMethodCompare.getSimilarity());
+
+			if (logger.isDebugEnabled()) {
+				logger.debug(
+						"find cached methodCompare for method1[briefMethodInformation={},version={}] and method2[briefMethodInformation={},version={}]",
+						methodCompare.getBriefMethodInformation1(), methodCompare.getVersion1(),
+						methodCompare.getBriefMethodInformation2(), methodCompare.getVersion2());
+			}
+			return;
+		}
+
 		Method method1 = methodRepository.findByBriefMethodInformationAndVersion(
 				methodCompare.getBriefMethodInformation1(), methodCompare.getVersion1());
 
@@ -53,7 +71,8 @@ public class MethodComparator {
 		if (logger.isDebugEnabled()) {
 			logger.debug(
 					"start to compare method1[briefMethodInformation={},version={}] and method2[briefMethodInformation={},version={}]",
-					methodCompare.getBriefMethodInformation1(), methodCompare.getBriefMethodInformation2());
+					methodCompare.getBriefMethodInformation1(), methodCompare.getVersion1(),
+					methodCompare.getBriefMethodInformation2(), methodCompare.getVersion2());
 		}
 
 		if (method1 == null && method2 != null)
@@ -92,8 +111,8 @@ public class MethodComparator {
 	}
 
 	public Graph buildGraph(Method method) {
-		Map<Long, List<Long>> edges = new HashMap<>();
-		Map<Long, String> nodeLabels = new HashMap<>();
+		Map<String, List<String>> edges = new HashMap<>();
+		Map<String, String> nodeLabels = new HashMap<>();
 		ASTNode parentNode = method.getRootNode();
 
 		buildEdgesAndLabels(parentNode, edges, nodeLabels);
@@ -101,11 +120,11 @@ public class MethodComparator {
 		return graph;
 	}
 
-	private void buildEdgesAndLabels(ASTNode parentNode, Map<Long, List<Long>> edges, Map<Long, String> labels) {
+	private void buildEdgesAndLabels(ASTNode parentNode, Map<String, List<String>> edges, Map<String, String> labels) {
 		labels.put(parentNode.getId(), parentNode.getType());
 		List<ASTNode> childNodes = astNodeRepository.findChildNodesByParentNodeId(parentNode.getId());
 		if (childNodes.size() > 0) {
-			List<Long> idOfChilds = childNodes.stream().map(childNode -> childNode.getId())
+			List<String> idOfChilds = childNodes.stream().map(childNode -> childNode.getId())
 					.collect(Collectors.toList());
 			edges.put(parentNode.getId(), idOfChilds);
 			for (ASTNode childNode : childNodes) {

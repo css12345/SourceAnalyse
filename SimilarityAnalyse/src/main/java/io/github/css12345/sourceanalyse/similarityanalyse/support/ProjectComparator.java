@@ -83,15 +83,15 @@ public class ProjectComparator {
 		Project project1 = projectCompare.getProject1();
 		Project project2 = projectCompare.getProject2();
 
-		if (logger.isInfoEnabled()) {
-			logger.info("start to compare project1:{} and project2:{} with these files{}", project1.getPath(),
+		if (logger.isDebugEnabled()) {
+			logger.debug("start to compare project1:{} and project2:{} with these files{}", project1.getPath(),
 					project2.getPath(), filePaths);
 		}
 
 		for (String filePath : filePaths) {
 			FileCompare fileCompare = new FileCompare();
 
-			FileInformation fileInformation = fileInformationRepository.findByFilePath(filePath, 1);
+			FileInformation fileInformation = fileInformationRepository.findByFilePath(filePath);
 			if (fileInformation.getVersion().equals(project1.getVersion())) {
 				fileCompare.setFilePath1(fileInformation.getFilePath());
 				String anotherFilePath = getAnotherPath(project1, project2, filePath);
@@ -107,8 +107,8 @@ public class ProjectComparator {
 			}
 		}
 
-		if (logger.isInfoEnabled()) {
-			logger.info("compare project1:{} and project2:{} with these files{} finished", project1.getPath(),
+		if (logger.isDebugEnabled()) {
+			logger.debug("compare project1:{} and project2:{} with these files{} finished", project1.getPath(),
 					project2.getPath(), filePaths);
 		}
 	}

@@ -3,17 +3,14 @@ package io.github.css12345.sourceanalyse.persistence.entity;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
-import org.neo4j.ogm.annotation.GeneratedValue;
-import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 @NodeEntity
 public class ASTNode {
-	@Id
-	@GeneratedValue
-	private Long id;
+	private String id = UUID.randomUUID().toString();
 
 	private transient String content;
 
@@ -33,7 +30,7 @@ public class ASTNode {
 		this.type = type;
 	}
 	
-	public Long getId() {
+	public String getId() {
 		return this.id;
 	}
 

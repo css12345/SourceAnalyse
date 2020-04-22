@@ -5,18 +5,24 @@
 <meta charset="UTF-8">
 <title>Java源码跨版本比较工具</title>
 <link rel="stylesheet"
+	th:href="@{/webjars/bootstrap-table/bootstrap-table.min.css}"
 	href="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.css">
 <link rel="stylesheet"
+	th:href="@{/webjars/jquery-treegrid/css/jquery.treegrid.css}"
 	href="https://cdn.bootcss.com/jquery-treegrid/0.2.0/css/jquery.treegrid.min.css">
-<link rel="stylesheet" th:href="@{/css/jquery-confirm.min.css}">
-
-<script
+<link rel="stylesheet"
+	th:href="@{/webjars/jquery-confirm/css/jquery-confirm.css}"
+	href="../static/css/jquery-confirm.min.css">
+	
+<script th:src="@{/webjars/jquery-confirm/js/jquery-confirm.js}"
+	src="../static/js/jquery-confirm.min.js"></script>
+<script th:src="@{/webjars/bootstrap-table/bootstrap-table.min.js}"
 	src="https://cdn.bootcss.com/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 <script
+	th:src="@{/webjars/bootstrap-table/extensions/treegrid/bootstrap-table-treegrid.min.js}"
 	src="https://cdn.bootcss.com/bootstrap-table/1.12.0/extensions/treegrid/bootstrap-table-treegrid.js"></script>
-<script
+<script th:src="@{/webjars/jquery-treegrid/js/jquery.treegrid.js}"
 	src="https://cdn.bootcss.com/jquery-treegrid/0.2.0/js/jquery.treegrid.min.js"></script>
-<script th:src="@{/js/jquery-confirm.min.js}"></script>
 <script type="text/javascript">
 	//格式化按钮
 	function operateFormatter(value, row, index) {
@@ -207,8 +213,8 @@
 							<div class="card">
 								<div class="card-toolbar clearfix">
 									<div class="toolbar-btn-action">
-										<a class="btn btn-primary m-r-5" th:href="@{/projects/add}"> <i
-											class="mdi mdi-plus"></i>新增
+										<a class="btn btn-primary m-r-5" th:href="@{/projects/add}">
+											<i class="mdi mdi-plus"></i>新增
 										</a> <a class="btn btn-danger" href="javascript:delMany()"> <i
 											class="mdi mdi-window-close"></i>批量删除
 										</a>

@@ -31,6 +31,19 @@ public class ProjectSaver {
 
 	@Autowired
 	private ConverterUtils converterUtils;
+	
+	@Autowired
+	private CSVBatchInserter csvBatchInserter;
+
+	/**
+	 * use this to batch parsing and saving files
+	 */
+	private int parseSize = 100;
+
+	/**
+	 * use this to batch save {@link FileInformation}
+	 */
+	private int saveToDatabaseSize = 100;
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -44,13 +57,13 @@ public class ProjectSaver {
 			return;
 
 		saveToJsonFile(project, notSavedJSONFiles);
-		convertAndSaveFileToDatabase(project, notSavedDatabaseFiles);
+		convertAndSaveFileToDatabase(notSavedDatabaseFiles);
 	}
 
 	private List<File> getNotSavedFilePathsOfDatabase(List<File> files) {
 		List<File> notSavedDatabaseFiles = new ArrayList<>();
 		for (File file : files) {
-			FileInformation fileInformation = fileInformationRepository.findByFilePath(file.getAbsolutePath(), 1);
+			FileInformation fileInformation = fileInformationRepository.findByFilePath(file.getAbsolutePath());
 			if (fileInformation == null)
 				notSavedDatabaseFiles.add(file);
 		}
@@ -74,12 +87,49 @@ public class ProjectSaver {
 	public void convertAndSaveFileToDatabase(Project project) {
 		List<File> filesOfProject = ProjectUtils.findSuffixLikeJavaFiles(project);
 
-		convertAndSaveFileToDatabase(project, filesOfProject);
+		convertAndSaveFileToDatabase(filesOfProject);
 	}
 
-	public void convertAndSaveFileToDatabase(Project project, List<File> files) {
-		for (File file : files) {
-			converterUtils.convertAndSave(project, file.getAbsolutePath());
+	public void convertAndSaveFileToDatabase(List<File> files) {
+		if (logger.isInfoEnabled()) {
+			logger.info("prepare to convert and save files to database");
+		}
+		long allStartTime = System.currentTimeMillis();
+		int parseTimes = (int) Math.ceil(files.size() / (saveToDatabaseSize * 1.0));
+		for (int i = 0; i < parseTimes; i++) {
+			long strartTime = System.currentTimeMillis();
+
+			final int fromIndex = i * saveToDatabaseSize;
+			final int toIndex = Math.min((i + 1) * saveToDatabaseSize, files.size());
+			List<FileInformation> resolvedFileInformations = new ArrayList<>();
+			for (int j = fromIndex; j < toIndex; j++) {
+				FileInformation resolvedFileInformation = converterUtils.convert(files.get(j).getAbsolutePath());
+				resolvedFileInformations.add(resolvedFileInformation);
+			}
+
+			if (logger.isInfoEnabled()) {
+				logger.info("convert files[{}-{}) finished, cost {} ms", fromIndex, toIndex,
+						System.currentTimeMillis() - strartTime);
+			}
+			csvBatchInserter.write(resolvedFileInformations);
+			if (logger.isInfoEnabled()) {
+				logger.info("save files[{}-{}) to csv file finished, cost {} ms", fromIndex, toIndex,
+						System.currentTimeMillis() - strartTime);
+			}
+		}
+		
+		if (logger.isInfoEnabled()) {
+			logger.info("convert and save files to csv file all cost {} ms", System.currentTimeMillis() - allStartTime);
+		}
+		
+		long csvImportStartTime = System.currentTimeMillis();
+		csvBatchInserter.executeCSVImport();
+		if (logger.isInfoEnabled()) {
+			logger.info("load from csv files to database cost {} ms", System.currentTimeMillis() - csvImportStartTime);
+		}
+		
+		if (logger.isInfoEnabled()) {
+			logger.info("convert and save files to database all cost {} ms", System.currentTimeMillis() - allStartTime);
 		}
 	}
 
@@ -88,21 +138,50 @@ public class ProjectSaver {
 	}
 
 	public void saveToJsonFile(Project project, List<File> files) {
-		long strartTime = System.currentTimeMillis();
-		List<io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation> fileInformations = fileInformationResolver
-				.getFileInformations(files, project);
 		if (logger.isInfoEnabled()) {
-			logger.info("file information of files {} resolve finished, cost {} ms", files, System.currentTimeMillis() - strartTime);
+			logger.info("prepare to resolve and save files");
 		}
+		long allStartTime = System.currentTimeMillis();
+		int parseTimes = (int) Math.ceil(files.size() / (parseSize * 1.0));
+		for (int i = 0; i < parseTimes; i++) {
+			long strartTime = System.currentTimeMillis();
+			List<File> subFiles = files.subList(i * parseSize, Math.min((i + 1) * parseSize, files.size()));
+			List<io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation> fileInformations = fileInformationResolver
+					.getFileInformations(subFiles, project);
+			if (logger.isInfoEnabled()) {
+				logger.info("file information of files[{}-{}) resolve finished, cost {} ms", i * parseSize,
+						Math.min((i + 1) * parseSize, files.size()), System.currentTimeMillis() - strartTime);
+			}
 
-		strartTime = System.currentTimeMillis();
-		for (io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation fileInformation : fileInformations) {
-			FileInformationDTO fileInformationDTO = new FileInformationDTO(fileInformation,
-					project.getClassQualifiedNameLocationMap());
-			fileInformationDTOMapper.writeToJSONFile(fileInformationDTO);
+			strartTime = System.currentTimeMillis();
+			for (io.github.css12345.sourceanalyse.jdtparse.entity.FileInformation fileInformation : fileInformations) {
+				FileInformationDTO fileInformationDTO = new FileInformationDTO(fileInformation,
+						project.getClassQualifiedNameLocationMap());
+				fileInformationDTOMapper.writeToJSONFile(fileInformationDTO);
+			}
+			if (logger.isInfoEnabled()) {
+				logger.info("save to json files[{}-{}) finished, cost {} ms", i * parseSize,
+						Math.min((i + 1) * parseSize, files.size()), System.currentTimeMillis() - strartTime);
+			}
 		}
 		if (logger.isInfoEnabled()) {
-			logger.info("save to json files {} finished, cost {} ms", files, System.currentTimeMillis() - strartTime);
+			logger.info("save to json files all cost {} ms", System.currentTimeMillis() - allStartTime);
 		}
+	}
+
+	public int getParseSize() {
+		return parseSize;
+	}
+
+	public void setParseSize(int parseSize) {
+		this.parseSize = parseSize;
+	}
+
+	public int getSaveToDatabaseSize() {
+		return saveToDatabaseSize;
+	}
+
+	public void setSaveToDatabaseSize(int saveToDatabaseSize) {
+		this.saveToDatabaseSize = saveToDatabaseSize;
 	}
 }

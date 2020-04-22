@@ -4,19 +4,29 @@
 	th:replace="fragments/general::header(~{::title},~{::link},~{::script})">
 <meta charset="UTF-8">
 <title>差异分析</title>
-<link
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
 	href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css"
 	rel="stylesheet">
-<link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
-<link rel="stylesheet" th:href="@{/css/jquery-confirm.min.css}">
-<script th:src="@{/js/jquery-confirm.min.js}"></script>
-<script th:src="@{/js/jquery.twbsPagination.js}"></script>
-<script
+<link
+	th:href="@{/webjars/jquery-datatables-checkboxes/css/dataTables.checkboxes.css}"
+	href="../static/css/dataTables.checkboxes.css" rel="stylesheet">
+<link rel="stylesheet"
+	th:href="@{/webjars/jquery-confirm/css/jquery-confirm.css}"
+	href="../static/css/jquery-confirm.min.css">
+
+<script th:src="@{/webjars/jquery-confirm/js/jquery-confirm.js}"
+	src="../static/js/jquery-confirm.min.js"></script>
+<script th:src="@{/webjars/twbs-pagination/jquery.twbsPagination.js}"
+	src="../static/js/jquery.twbsPagination.js"></script>
+<script th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"
 	src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
-<script
+<script th:src="@{/webjars/datatables/js/dataTables.bootstrap.min.js}"
 	src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js"></script>
-<script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
-<script type="text/javascript" src="http://d3js.org/d3.v5.min.js">
+<script
+	th:src="@{/webjars/jquery-datatables-checkboxes/js/dataTables.checkboxes.min.js}"
+	src="../js/dataTables.checkboxes.min.js"></script>
+<script th:src="@{/webjars/d3js/d3.min.js}"
+	src="http://d3js.org/d3.v5.min.js">
 	
 </script>
 <script type="text/javascript">
@@ -77,13 +87,13 @@
 		});
 	});
 
-	function loadProjectFiles(selectedObject) {
+	function setOptionsDisabled(selectedObject) {
 		var selectedIndex = selectedObject.selectedIndex;
 		var selectedProjectId = selectedObject.options[selectedIndex].value;
-		var url = "/project/" + selectedProjectId + "/files";
+		/* var url = "/project/" + selectedProjectId + "/files"; */
 		var selectedElementId = selectedObject.id;
 
-		var table;
+		/* var table; */
 		if (selectedElementId == "sel1") {
 			var sel2 = $('#sel2')[0];
 			for (index in sel2.options) {
@@ -94,7 +104,7 @@
 				}
 			}
 
-			table = $('#project1FilesTable').DataTable();
+			/* table = $('#project1FilesTable').DataTable(); */
 		} else {
 			var sel1 = $('#sel1')[0];
 			for (index in sel1.options) {
@@ -105,10 +115,10 @@
 				}
 			}
 
-			table = $('#project2FilesTable').DataTable();
+			/* table = $('#project2FilesTable').DataTable(); */
 		}
 
-		table.clear().draw();
+		/* table.clear().draw();
 
 		$.get(url, function(datas) {
 			for (index in datas) {
@@ -116,8 +126,59 @@
 				table.row.add(data);
 			}
 			table.draw();
-		});
+		}); */
 
+	}
+	
+	function loadAllModifiedFiles() {
+		var selectedProject1Id = $('#sel1')[0].options[$('#sel1')[0].selectedIndex].value;
+		if (selectedProject1Id == null || selectedProject1Id == "") {
+			$.alert("请选择一个项目作为项目一");
+			return;
+		}
+		var selectedProject2Id = $('#sel2')[0].options[$('#sel2')[0].selectedIndex].value;
+		if (selectedProject2Id == null || selectedProject2Id == "") {
+			$.alert("请选择一个项目作为项目二");
+			return;
+		}
+		
+		var url = "/differences/modifiedFiles";
+		var data = { projectId1: selectedProject1Id, projectId2: selectedProject2Id};
+		var table1 = $('#project1FilesTable').DataTable();
+		var table2 = $('#project2FilesTable').DataTable();
+		$.ajax({
+			type : 'GET',
+			url : url,
+			data : data,
+			beforeSend : function() {
+				$('#loadAllModifiedFilesButton').addClass('disabled');
+				$('#loadingSignForLoadAllModifiedFiles').show();
+				table1.clear().draw();
+				table2.clear().draw();
+			},
+			success : function(modifiedFilesMap) {
+				console.log(modifiedFilesMap);
+				var modifiedFilesOfProject1 = modifiedFilesMap.project1;
+				for (var i = 0; i < modifiedFilesOfProject1.length; i++) {
+					var data = [ i, modifiedFilesOfProject1[i] ];
+					table1.row.add(data);
+				}
+				table1.draw();
+				var modifiedFilesOfProject2 = modifiedFilesMap.project2;
+				for (var i = 0; i < modifiedFilesOfProject2.length; i++) {
+					var data = [ i, modifiedFilesOfProject2[i] ];
+					table2.row.add(data);
+				}
+				table2.draw();
+			},
+			error : function(statusCode) {
+				$.alert("出错了，状态码为" + statusCode.status);
+			},
+			complete : function() {
+				$('#loadAllModifiedFilesButton').removeClass('disabled');
+				$('#loadingSignForLoadAllModifiedFiles').hide();
+			}
+		});	
 	}
 </script>
 <script type="text/javascript">
@@ -160,19 +221,7 @@
 		
 		currentRequestPage = currentPage;
 		$('#pageCompare').twbsPagination('destroy');
-		$('#pageCompare').twbsPagination({
-			first : '首页',
-			prev : '上页',
-			next : '下页',
-			last : '末页',
-			initiateStartPageClick : false,
-			totalPages : totalPages,
-			startPage : currentPage,
-			visiblePages : 10,
-			onPageClick : function(event, page) {
-				compare(page, size, displayType);
-			}
-		});
+		
 
 		var requestParams = JSON.stringify({
 			projectId1 : selectedProject1Id,
@@ -188,7 +237,8 @@
 			url : '/differences/compare',
 			data : requestParams,
 			beforeSend : function() {
-				$('#loadingSign').show();
+				$('#loadingSignForDisplayDifferences').show();
+				$('.showModifiedInformation').addClass('disabled');
 				if (displayType == "table")
 					setUpForTable();
 				else
@@ -196,6 +246,19 @@
 			},
 			success : function(data) {
 				console.log(data);
+				$('#pageCompare').twbsPagination({
+					first : '首页',
+					prev : '上页',
+					next : '下页',
+					last : '末页',
+					initiateStartPageClick : false,
+					totalPages : totalPages,
+					startPage : currentPage,
+					visiblePages : 10,
+					onPageClick : function(event, page) {
+						compare(page, size, displayType);
+					}
+				});
 				if (displayType == "table")
 					displayAsTable(data);
 				else
@@ -205,7 +268,8 @@
 				$.alert("出错了，状态码为" + statusCode.status);
 			},
 			complete : function() {
-				$('#loadingSign').hide();
+				$('.showModifiedInformation').removeClass('disabled');
+				$('#loadingSignForDisplayDifferences').hide();
 			}
 		});
 	}
@@ -259,32 +323,42 @@
 		return value;
 	}
 	
+	function getMethodCompareNode(methodCompare) {
+		var methodCompareNode = new Object();
+		methodCompareNode.id = methodCompare.briefMethodInformation1
+				+ '-' + methodCompare.version1 + '-'
+				+ methodCompare.briefMethodInformation2 + '-'
+				+ methodCompare.version2;
+		methodCompareNode.briefMethodInformation1 = methodCompare.briefMethodInformation1;
+		methodCompareNode.version1 = methodCompare.version1;
+		methodCompareNode.briefMethodInformation2 = methodCompare.briefMethodInformation2;
+		methodCompareNode.version2 = methodCompare.version2;
+		methodCompareNode.state = methodCompare.state;
+		methodCompareNode.similarity = methodCompare.similarity;
+		methodCompareNode.type = "methodCompare";
+		return methodCompareNode;
+	}
+	
+	function getFileCompareNode(fileCompare) {
+		var fileCompareNode = new Object();
+		fileCompareNode.id = fileCompare.filePath1 + '-'
+				+ fileCompare.filePath2;
+		fileCompareNode.filePath1 = fileCompare.filePath1;
+		fileCompareNode.filePath2 = fileCompare.filePath2;
+		fileCompareNode.state = fileCompare.state;
+		fileCompareNode.type = "fileCompare";
+		return fileCompareNode;
+	}
+	
 	function setNodesAndLinks(nodes, links, fileCompares) {
 		for (var i = 0; i < fileCompares.length; i++) {
-			var fileCompareNode = new Object();
 			var fileCompare = fileCompares[i];
-			fileCompareNode.id = fileCompare.filePath1 + '-'
-					+ fileCompare.filePath2;
-			fileCompareNode.filePath1 = fileCompare.filePath1;
-			fileCompareNode.filePath2 = fileCompare.filePath2;
-			fileCompareNode.state = fileCompare.state;
-			fileCompareNode.type = "fileCompare";
+			var fileCompareNode = getFileCompareNode(fileCompare);
 			nodes.push(fileCompareNode);
 
 			for (var j = 0; j < fileCompare.methodCompares.length; j++) {
-				var methodCompareNode = new Object();
 				var methodCompare = fileCompare.methodCompares[j];
-				methodCompareNode.id = methodCompare.briefMethodInformation1
-						+ '-' + methodCompare.version1 + '-'
-						+ methodCompare.briefMethodInformation2 + '-'
-						+ methodCompare.version2;
-				methodCompareNode.briefMethodInformation1 = methodCompare.briefMethodInformation1;
-				methodCompareNode.version1 = methodCompare.version1;
-				methodCompareNode.briefMethodInformation2 = methodCompare.briefMethodInformation2;
-				methodCompareNode.version2 = methodCompare.version2;
-				methodCompareNode.state = methodCompare.state;
-				methodCompareNode.similarity = methodCompare.similarity;
-				methodCompareNode.type = "methodCompare";
+				var methodCompareNode = getMethodCompareNode(methodCompare);
 				nodes.push(methodCompareNode);
 				
 				var link = new Object();
@@ -333,32 +407,45 @@
 			content += "相似度：" + node.similarity + "<br>";
 		}
 		$('#compareNodeInformation').html(content);
+		
+		var footer = "";
+		footer += "<button type='button' class='btn btn-default' data-dismiss='modal'>关闭</button>";
+		if (node.type == "methodCompare") {
+			footer += "<button type='button' class='btn btn-primary showRelatedInformation' onclick='javascirpt:showRelatedNodes(1)'>显示关联节点(调用该方法的节点)</button>";
+			footer += "<button type='button' class='btn btn-primary showRelatedInformation' onclick='javascirpt:showRelatedNodes(2)'>显示关联节点(该方法调用的节点)</button>";
+			selectedNode = node;
+		}
+		$('#myModalFooter').html(footer);
+		
 		$('#showCompareNode').modal('show');
 	}
-
-	function displayAsGraph(fileCompares) {
-		var nodes = [];
-		var links = [];
-		setNodesAndLinks(nodes, links, fileCompares);
-		console.log(nodes);
-		console.log(links);
-		var width = $('#displayAsGraph').innerWidth();
-		var height = Math.max($('#displayAsGraph').innerHeight(), 600);
-
-		var svg = d3.select('svg');
+	
+	function showForceDirectedGraph(nodes, links, width, height, svg) {
 		svg.attr('width', width).attr('height', height);
+		
+		svg.append('defs').append('marker')
+        .attr('id', 'arrowhead')
+        .attr('viewBox','-0 -5 10 10')
+        .attr('refX',13)
+        .attr('refY', 0)
+        .attr('orient', 'auto')
+        .attr('markerWidth', 13)
+        .attr('markerHeight', 13)
+        .append('svg:path')
+        .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+        .attr('fill', '#999');
 		
 		// simulation setup with all forces
 		var linkForce = d3
 		  .forceLink()
 		  .id(function (link) { return link.id })
-		  .distance(100)
+		  .distance(100);
 
 		var simulation = d3
 		  .forceSimulation()
 		  .force('link', linkForce)
 		  .force('charge', d3.forceManyBody().strength(-10))
-		  .force('center', d3.forceCenter(width / 2, height / 2))
+		  .force('center', d3.forceCenter(width / 2, height / 2));
 		  
 		  
 		var dragDrop = d3.drag().on('start', function (node) {
@@ -374,7 +461,7 @@
 		  }
 		  node.fx = null
 		  node.fy = null
-		})
+		});
 
 		var linkElements = svg.append("g")
 			.attr("class", "links")
@@ -383,6 +470,7 @@
 		  	.enter().append("line")
 		  	.attr("stroke-width", 1)
 		  	.attr("stroke", "rgba(50, 50, 50, 0.2)")
+		  	.attr('marker-end','url(#arrowhead)');
 
 		var nodeElements = svg.append("g")
 			.attr("class", "nodes")
@@ -392,7 +480,7 @@
 		  	.attr("r", getNodeRadius)
 		  	.attr("fill", getNodeColor)
 		  	.call(dragDrop)
-    	  	.on('click', showSelectNode)
+    	  	.on('click', showSelectNode);
 
 		simulation.nodes(nodes).on('tick', () => {
 		  nodeElements
@@ -404,10 +492,90 @@
 	        .attr("y1", function(link) { return getValidY(link.source, height) })
 	        .attr("x2", function(link) { return getValidX(link.target, width) })
 	        .attr("y2", function(link) { return getValidY(link.target, height) })
-		})
+		});
 
-		simulation.force("link").links(links)
+		simulation.force("link").links(links);
+	}
 
+	function displayAsGraph(fileCompares) {
+		var nodes = [];
+		var links = [];
+		setNodesAndLinks(nodes, links, fileCompares);
+		console.log(nodes);
+		console.log(links);
+		var svg = d3.select('#displayAsGraph svg');
+		var width = $('#displayAsGraph').innerWidth();
+		var height = Math.max($('#displayAsGraph').innerHeight(), 600);
+		showForceDirectedGraph(nodes, links, width, height, svg);
+	}
+</script>
+<script type="text/javascript">
+	function clearDisplayedRelatedNodes() {
+		$('#displayRelatedNodes svg').html("");
+		$('#relatedHeader').text('关联分析');
+	}
+	
+	var selectedNode;
+	function showRelatedNodes(type) {
+		$('#showCompareNode').modal('hide');
+		/* console.log(selectedNode); */
+		
+		var briefMethodInformation = selectedNode.briefMethodInformation1 == null ? selectedNode.briefMethodInformation2 : selectedNode.briefMethodInformation1;
+		
+		var requestParams = JSON.stringify({
+			briefMethodInformation1 : selectedNode.briefMethodInformation1,
+			version1 : selectedNode.version1,
+			briefMethodInformation2 : selectedNode.briefMethodInformation2,
+			version2 : selectedNode.version2,
+			type : type
+		});
+
+		$.ajax({
+			type : 'POST',
+			contentType : 'application/json; charset=utf-8',
+			url : '/differences/relatedMethods',
+			data : requestParams,
+			beforeSend : function() {
+				$('#loadingSignForDisplayRelatedNodes').show();
+				$('#displayRelatedNodes').show();
+				$('#displayRelatedNodes svg').html("");
+				if (type == 1)
+					$('#relatedHeader').text('关联分析(调用' + briefMethodInformation + '的方法)');
+				else if (type == 2)
+					$('#relatedHeader').text('关联分析(' + briefMethodInformation + '调用的方法)');
+			},
+			success : function(data) {
+				console.log(data);
+				var nodes = [];
+				var links = [];
+				nodes.push(selectedNode);
+				for (var i = 0; i < data.length; i++) {
+					var methodCompareNode = getMethodCompareNode(data[i]);
+					nodes.push(methodCompareNode);
+					
+					var link = new Object();
+					if (type == 1) {
+						link.source = methodCompareNode.id;
+						link.target = selectedNode.id;
+					} else if (type == 2) {
+						link.source = selectedNode.id;
+						link.target = methodCompareNode.id;
+					}
+					links.push(link);
+				}
+				
+				var svg = d3.select('#displayRelatedNodes svg');
+				var width = $('#displayRelatedNodes').innerWidth();
+				var height = Math.max($('#displayRelatedNodes').innerHeight(), 600);
+				showForceDirectedGraph(nodes, links, width, height, svg);
+			},
+			error : function(statusCode) {
+				$.alert("出错了，状态码为" + statusCode.status);
+			},
+			complete : function() {
+				$('#loadingSignForDisplayRelatedNodes').hide();
+			}
+		});
 	}
 </script>
 </head>
@@ -419,12 +587,27 @@
 			<main class="lyear-layout-content">
 				<div class="container-fluid">
 					<div class="row">
+						<div class="col-md-12">
+							<div class="card">
+								<div class="card-header">
+									<div id="loadingSignForLoadAllModifiedFiles"
+										style="display: none">
+										<h4>loading...</h4>
+									</div>
+									<div class="pull-right">
+										<a id="loadAllModifiedFilesButton" class="btn btn-primary m-r-10"
+											href="javascript:loadAllModifiedFiles()">显示所有变化文件</a>
+									</div>
+								</div>
+							</div>
+						</div>
+
 						<div class="col-md-6">
 							<div class="card">
 								<div class="card-body">
 									<div class="input-group">
 										<label for="sel1">项目一:</label> <select class="form-control"
-											id="sel1" onchange="loadProjectFiles(this)">
+											id="sel1" onchange="setOptionsDisabled(this)">
 											<option disabled selected value="" style="display: none">--
 												选择一个项目 --</option>
 										</select>
@@ -454,7 +637,7 @@
 								<div class="card-body">
 									<div class="input-group">
 										<label for="sel2">项目二:</label> <select class="form-control"
-											id="sel2" onchange="loadProjectFiles(this)">
+											id="sel2" onchange="setOptionsDisabled(this)">
 											<option disabled selected value="" style="display: none">--
 												选择一个项目 --</option>
 										</select>
@@ -485,17 +668,18 @@
 								<div class="card-header">
 									<h4>比较结果</h4>
 									<div class="pull-right">
-										<a class="btn btn-primary m-r-10"
-											href="javascript:compare(1,pageSize,'graph')">比较选中文件</a> <a
+										<a class="btn btn-primary m-r-10 showModifiedInformation"
+											href="javascript:compare(1,pageSize,'graph')">显示变化信息</a> <a
 											href="javascript:compare(currentRequestPage,pageSize,'graph')"
-											class="btn btn-primary m-r-10"><i
+											class="btn btn-primary m-r-10 showModifiedInformation"><i
 											class="mdi mdi-vector-polygon"></i>图</a> <a
 											href="javascript:compare(currentRequestPage,pageSize,'table')"
-											class="btn btn-primary"><i class="mdi mdi-table"></i>表</a>
+											class="btn btn-primary showModifiedInformation"><i class="mdi mdi-table"></i>表</a>
 									</div>
 								</div>
 								<div class="card-body">
-									<div id="loadingSign" style="display: none">
+									<div id="loadingSignForDisplayDifferences"
+										style="display: none">
 										<h4>loading...</h4>
 									</div>
 									<div id="displayAsTable" class="table-responsive scroll-y"
@@ -533,7 +717,7 @@
 														<h4 class="modal-title" id="myModalLabel">节点信息</h4>
 													</div>
 													<div id="compareNodeInformation" class="modal-body">节点信息</div>
-													<div class="modal-footer">
+													<div class="modal-footer" id="myModalFooter">
 														<button type="button" class="btn btn-default"
 															data-dismiss="modal">关闭</button>
 													</div>
@@ -544,6 +728,28 @@
 									<ul class="pagination" id="pageCompare">
 
 									</ul>
+								</div>
+
+							</div>
+						</div>
+
+						<div class="col-md-12">
+							<div class="card">
+								<div class="card-header">
+									<h4 id="relatedHeader">关联分析</h4>
+									<div class="pull-right">
+										<a class="btn btn-primary m-r-10"
+											href="javascript:clearDisplayedRelatedNodes()">清空当前显示节点</a>
+									</div>
+								</div>
+								<div class="card-body">
+									<div id="loadingSignForDisplayRelatedNodes"
+										style="display: none">
+										<h4>loading...</h4>
+									</div>
+									<div id="displayRelatedNodes" style="display: none;">
+										<svg></svg>
+									</div>
 								</div>
 
 							</div>
