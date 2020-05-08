@@ -241,11 +241,7 @@ public class CSVBatchInserter implements InitializingBean {
 			
 			tempScriptFile.delete();
 			FileUtils.deleteDirectory(baseDir);
-			createNotExistFiles();
-			fileInformationHeaderAdded = false;
-			methodHeaderAdded = false;
-			astNodeHeaderAdded = false;
-			writeHeaders();
+			createNotExistFilesAndWriteHeaders();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -260,23 +256,31 @@ public class CSVBatchInserter implements InitializingBean {
 		methodFile = new File(baseDir, methodFileName);
 		astNodeFile = new File(baseDir, astNodeFileName);
 
-		createNotExistFiles();
-		writeHeaders();
+		createNotExistFilesAndWriteHeaders();
 	}
 
-	private void writeHeaders() {
-		write(Collections.emptyList());
-		writeMethod(Collections.emptyList());
-		writeASTNode(Collections.emptyList());
-	}
-
-	private void createNotExistFiles() {
+	private void createNotExistFilesAndWriteHeaders() {
 		if (!baseDir.exists())
 			baseDir.mkdirs();
 		try {
-			fileInformationFile.createNewFile();
-			methodFile.createNewFile();
-			astNodeFile.createNewFile();
+			if (fileInformationFile.createNewFile()) {
+				fileInformationHeaderAdded = false;
+				write(Collections.emptyList());
+			} else {
+				fileInformationHeaderAdded = true;
+			}
+			if (methodFile.createNewFile()) {
+				methodHeaderAdded = false;
+				write(Collections.emptyList());
+			} else {
+				methodHeaderAdded = true;
+			}
+			if (astNodeFile.createNewFile()) {
+				astNodeHeaderAdded = false;
+				writeASTNode(Collections.emptyList());
+			} else {
+				astNodeHeaderAdded = true;
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

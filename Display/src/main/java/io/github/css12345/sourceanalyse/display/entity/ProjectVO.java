@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -52,15 +53,15 @@ public class ProjectVO {
 	 * @see Project#wantedPackageNames
 	 */
 	private Set<String> wantedPackageNames = new HashSet<>();
-	
+
 	private String inputWantedPackageNames;
-	
+
 	private String inputPathOfDependencies;
-	
+
 	private String parentProjectPath;
 
 	private List<ProjectVO> modules = new ArrayList<>();
-	
+
 	private Map<String, String> classQualifiedNameLocationMap = new HashMap<>();
 
 	public ProjectVO() {
@@ -122,10 +123,10 @@ public class ProjectVO {
 	public void setModules(List<ProjectVO> modules) {
 		this.modules = modules;
 	}
-	
-	public void resolveAndSetClassQualifiedNameLocationMap (Project project) {
+
+	public void resolveAndSetClassQualifiedNameLocationMap(Project project) {
 		List<File> suffixLikeJavaFiles = ProjectUtils.findSuffixLikeJavaFiles(project);
-		
+
 		List<ClassInformation> classInformations = new ArrayList<>();
 		for (File file : suffixLikeJavaFiles) {
 			Project closestProject;
@@ -136,11 +137,11 @@ public class ProjectVO {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-			
+
 			ClassInformation classInformation = new ClassInformation(file.getAbsolutePath(), closestProject);
 			classInformations.add(classInformation);
 		}
-		
+
 		for (ClassInformation classInformation : classInformations) {
 			CompilationUnit compilationUnit = ASTParserUtils.setUpCompilationUnit(classInformation);
 			compilationUnit.accept(new ASTVisitor() {
@@ -168,12 +169,29 @@ public class ProjectVO {
 			moduleVO.setPathOfDependencies(module.getPathOfDependencies());
 			moduleVO.setRelativePath(module.getRelativePath());
 			moduleVO.setParentProjectPath(project.getPath());
-			moduleVO.setClassQualifiedNameLocationMap(classQualifiedNameLocationMap);
+
+			Map<String, String> parentClassQualifiedNameLocationMap = project.getClassQualifiedNameLocationMap();
+			Map<String, String> locationClassQualifiedNameMap = new HashMap<>();
+			for (Entry<String, String> entry : parentClassQualifiedNameLocationMap.entrySet()) {
+				locationClassQualifiedNameMap.put(entry.getValue(), entry.getKey());
+			}
+			List<File> suffixLikeJavaFiles = ProjectUtils.findSuffixLikeJavaFiles(module);
+			Map<String, String> moduleClassQualifiedNameLocationMap = new HashMap<>();
+			for (File file : suffixLikeJavaFiles) {
+				if (!locationClassQualifiedNameMap.containsKey(file.getAbsolutePath()))
+					throw new IllegalStateException(String.format(
+							"parent project %s 's classQualifiedNameLocationMap doesn't contains module %s 's file %s",
+							project.getPath(), module.getPath(), file.getAbsolutePath()));
+				
+				moduleClassQualifiedNameLocationMap.put(locationClassQualifiedNameMap.get(file.getAbsolutePath()), file.getAbsolutePath());
+			}
+			module.setClassQualifiedNameLocationMap(moduleClassQualifiedNameLocationMap);
+			moduleVO.setClassQualifiedNameLocationMap(moduleClassQualifiedNameLocationMap);
 			moduleVO.resolveAndSetModules(module);
 			this.modules.add(moduleVO);
 		}
 	}
-	
+
 	public void resolveAndSetInputWantedPackageNames() {
 		if (inputWantedPackageNames == null || "".equals(inputWantedPackageNames.trim()))
 			return;
@@ -185,7 +203,7 @@ public class ProjectVO {
 				wantedPackageNames.add(name);
 		}
 	}
-	
+
 	public void resolveAndSetInputPathOfDependencies() {
 		if (inputPathOfDependencies == null || "".equals(inputPathOfDependencies.trim()))
 			return;

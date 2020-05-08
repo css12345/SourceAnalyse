@@ -49,6 +49,8 @@ public class ProjectComparator {
 
 	public String getAnotherPath(Project project1, Project project2, String path1) {
 		Project closestProjectOfProject1 = ProjectUtils.findClosestProject(path1, project1);
+		if (closestProjectOfProject1 == null)
+			throw new IllegalStateException(String.format("find file %s 's closest project from %s is null", path1, project1.getPath()));
 		Project closestProjectOfProject2 = findModuleByRelativePath(project2,
 				closestProjectOfProject1.getRelativePath());
 

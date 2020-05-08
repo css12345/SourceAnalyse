@@ -94,6 +94,7 @@ public class ProjectController {
 		projectVO.setPathOfDependencies(project.getPathOfDependencies());
 		projectVO.setRelativePath(project.getRelativePath());
 		projectVO.resolveAndSetClassQualifiedNameLocationMap(project);
+		project.setClassQualifiedNameLocationMap(projectVO.getClassQualifiedNameLocationMap());
 		projectVO.resolveAndSetModules(project);
 	}
 }

@@ -100,9 +100,18 @@ public class ProjectDaoImpl implements ProjectDao, InitializingBean {
 	@Override
 	public Project getProjectById(String projectId) {
 		List<ProjectVOWrapper> projectVOWrappers = getAll();
+		String projectPath = null;
 		for (ProjectVOWrapper projectVOWrapper : projectVOWrappers) {
 			if (projectVOWrapper.getId().equals(projectId)) {
-				return ProjectVOConverter.convert(projectVOWrapper);
+				projectPath = projectVOWrapper.getProjectPath();
+				break;
+			}
+		}
+		if (projectPath != null) {
+			List<ProjectVO> projectVOs = ProjectVOConverter.convertTo(projectVOWrappers);
+			for (ProjectVO projectVO : projectVOs) {
+				if (projectPath.equals(projectVO.getProjectPath()))
+					return ProjectVOConverter.convert(projectVO);
 			}
 		}
 		throw new IllegalArgumentException("can't find project for id " + projectId);
