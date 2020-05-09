@@ -34,6 +34,10 @@ public class ConverterUtils {
 	 * briefMethodInformation}, value is {@link Method}
 	 */
 	private Map<String, Method> methodCache = new HashMap<>();
+	
+	public void clearMethodCache() {
+		methodCache.clear();
+	}
 
 	public FileInformation convert(String fileInformationDTOPath) {
 		FileInformationDTO fileInformationDTO = getFileInformationDTO(fileInformationDTOPath);

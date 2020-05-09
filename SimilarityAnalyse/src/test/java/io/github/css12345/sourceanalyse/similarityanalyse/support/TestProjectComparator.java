@@ -68,7 +68,7 @@ public class TestProjectComparator {
 		ProjectCompare projectCompare = new ProjectCompare();
 		projectCompare.setProject1(testProject1);
 		projectCompare.setProject2(testProject2);
-		projectComparator.compare(projectCompare);
+		projectComparator.compare(projectCompare, "a-b.json");
 
 		Set<FileCompare> fileCompares = projectCompare.getFileCompares();
 		for (FileCompare fileCompare : fileCompares) {
@@ -115,6 +115,6 @@ public class TestProjectComparator {
 		}
 		
 		ProjectCompare projectCompare = new ProjectCompare(testProject1, testProject2);
-		projectComparator.compare(projectCompare, filePaths);
+		projectComparator.compare(projectCompare, filePaths, "a-b.json");
 	}
 }

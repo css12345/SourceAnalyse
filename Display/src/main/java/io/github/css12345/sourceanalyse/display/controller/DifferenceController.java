@@ -38,7 +38,8 @@ public class DifferenceController {
 	public Map<String, List<String>> getModifiedFilesOfProjects(@RequestParam String projectId1, String projectId2) {
 		Project project1 = projectDao.getProjectById(projectId1);
 		Project project2 = projectDao.getProjectById(projectId2);
-		return differenceDao.getModifiedFilesOfProjects(project1, project2);
+		String relatedFileName = String.format("%s-%s.json", projectId1, projectId2);
+		return differenceDao.getModifiedFilesOfProjects(project1, project2, relatedFileName);
 	}
 	
 	@ResponseBody
@@ -67,8 +68,8 @@ public class DifferenceController {
 		int startItem = (currentPage - 1) * pageSize;
 		int toIndex = Math.min(startItem + pageSize, filePaths.size());
 		List<String> pageFilePaths = filePaths.subList(startItem, toIndex);
-		
-		return differenceDao.compareFiles(project1, project2, pageFilePaths);
+		String relatedFileName = String.format("%s-%s.json", projectId1, projectId2);
+		return differenceDao.compareFiles(project1, project2, pageFilePaths, relatedFileName);
 	}
 
 }

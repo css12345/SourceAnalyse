@@ -33,13 +33,14 @@ public class FileComparator {
 	 * @param fileCompare must set the compared fileInformations
 	 * @param version1
 	 * @param version2
+	 * @param relatedFileName 
 	 */
-	public void compare(FileCompare fileCompare, String version1, String version2) {
+	public void compare(FileCompare fileCompare, String version1, String version2, String relatedFileName) {
 		String filePath1 = fileCompare.getFilePath1();
 		String filePath2 = fileCompare.getFilePath2();
 
-		if (FileCompareCacheUtils.contains(filePath1, filePath2)) {
-			FileCompare cachedFileCompare = FileCompareCacheUtils.getFileCompare(filePath1, filePath2);
+		if (FileCompareCacheUtils.contains(filePath1, filePath2, relatedFileName)) {
+			FileCompare cachedFileCompare = FileCompareCacheUtils.getFileCompare(filePath1, filePath2, relatedFileName);
 			fileCompare.setMethodCompares(cachedFileCompare.getMethodCompares());
 			fileCompare.setState(cachedFileCompare.getState());
 
@@ -78,7 +79,7 @@ public class FileComparator {
 					fileCompare.getState());
 		}
 
-		FileCompareCacheUtils.saveToCacheFile(fileCompare);
+		FileCompareCacheUtils.saveToCacheFile(fileCompare, relatedFileName);
 		if (logger.isDebugEnabled()) {
 			logger.debug("add fileCompare for filePath1:{} and filePath2:{} to cache file finished", filePath1,
 					filePath2);

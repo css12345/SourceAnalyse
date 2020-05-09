@@ -46,9 +46,9 @@ public class DifferenceDaoImpl implements DifferenceDao {
 	private MethodComparator methodComparator;
 
 	@Override
-	public List<FileCompare> compareFiles(Project project1, Project project2, List<String> filePaths) {
+	public List<FileCompare> compareFiles(Project project1, Project project2, List<String> filePaths, String relatedFileName) {
 		ProjectCompare projectCompare = new ProjectCompare(project1, project2);
-		projectComparator.compare(projectCompare, filePaths);
+		projectComparator.compare(projectCompare, filePaths, relatedFileName);
 		List<FileCompare> modifiedFileCompares = new ArrayList<>();
 		for (FileCompare fileCompare : projectCompare.getFileCompares()) {
 			if (fileCompare.getState() == State.UNMODIFIED)
@@ -131,7 +131,7 @@ public class DifferenceDaoImpl implements DifferenceDao {
 	}
 
 	@Override
-	public Map<String, List<String>> getModifiedFilesOfProjects(Project project1, Project project2) {
+	public Map<String, List<String>> getModifiedFilesOfProjects(Project project1, Project project2, String relatedFileName) {
 		projectSaver.saveProject(project1);
 		projectSaver.saveProject(project2);
 
@@ -145,7 +145,7 @@ public class DifferenceDaoImpl implements DifferenceDao {
 			allFilePaths.add(file.getAbsolutePath());
 		}
 		ProjectCompare projectCompare = new ProjectCompare(project1, project2);
-		projectComparator.compare(projectCompare, allFilePaths);
+		projectComparator.compare(projectCompare, allFilePaths, relatedFileName);
 
 		Set<FileCompare> fileCompares = projectCompare.getFileCompares();
 		List<String> modifiedFilesOfProject1 = new ArrayList<>();

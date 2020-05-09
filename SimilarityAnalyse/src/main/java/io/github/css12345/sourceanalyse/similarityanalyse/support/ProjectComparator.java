@@ -37,14 +37,15 @@ public class ProjectComparator {
 	 * @param projectCompare must set the compared projects, means
 	 *                       {@link ProjectCompare#project1} and
 	 *                       {@link ProjectCompare#project2} must not null
+	 * @param relatedFileName 
 	 */
-	public void compare(ProjectCompare projectCompare) {
+	public void compare(ProjectCompare projectCompare, String relatedFileName) {
 		List<String> filePaths = new ArrayList<>();
 		filePaths.addAll(ProjectUtils.findSuffixLikeJavaFiles(projectCompare.getProject1()).stream()
 				.map(file -> file.getAbsolutePath()).collect(Collectors.toList()));
 		filePaths.addAll(ProjectUtils.findSuffixLikeJavaFiles(projectCompare.getProject2()).stream()
 				.map(file -> file.getAbsolutePath()).collect(Collectors.toList()));
-		compare(projectCompare, filePaths);
+		compare(projectCompare, filePaths, relatedFileName);
 	}
 
 	public String getAnotherPath(Project project1, Project project2, String path1) {
@@ -81,7 +82,7 @@ public class ProjectComparator {
 		return null;
 	}
 
-	public void compare(ProjectCompare projectCompare, List<String> filePaths) {
+	public void compare(ProjectCompare projectCompare, List<String> filePaths, String relatedFileName) {
 		Project project1 = projectCompare.getProject1();
 		Project project2 = projectCompare.getProject2();
 
@@ -104,7 +105,7 @@ public class ProjectComparator {
 				fileCompare.setFilePath1(anotherFilePath);
 			}
 			if (!projectCompare.getFileCompares().contains(fileCompare)) {
-				fileComparator.compare(fileCompare, project1.getVersion(), project2.getVersion());
+				fileComparator.compare(fileCompare, project1.getVersion(), project2.getVersion(), relatedFileName);
 				projectCompare.getFileCompares().add(fileCompare);
 			}
 		}

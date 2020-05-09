@@ -1,6 +1,8 @@
 package io.github.css12345.sourceanalyse.similarityanalyse.utils;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +32,9 @@ public class CacheUtils {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String valueInJsonString = mapper.writeValueAsString(value) + "\n";
-			FileUtils.write(cacheFile, valueInJsonString, "UTF-8", append);
+			try (BufferedWriter writer = new BufferedWriter(new FileWriter(cacheFile, append))) {
+				writer.append(valueInJsonString);
+			}
 		} catch (IOException e) {
 			String errorMessage = String.format("when write value %s to file %s occur an IOException", value, cacheFile.getAbsolutePath());
 			throw new RuntimeException(errorMessage, e);

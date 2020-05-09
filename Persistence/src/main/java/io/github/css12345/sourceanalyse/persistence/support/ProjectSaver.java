@@ -117,7 +117,7 @@ public class ProjectSaver {
 						System.currentTimeMillis() - strartTime);
 			}
 		}
-		
+		converterUtils.clearMethodCache();
 		if (logger.isInfoEnabled()) {
 			logger.info("convert and save files to csv file all cost {} ms", System.currentTimeMillis() - allStartTime);
 		}

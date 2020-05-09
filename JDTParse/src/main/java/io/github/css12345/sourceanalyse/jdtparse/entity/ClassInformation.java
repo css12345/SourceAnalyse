@@ -75,6 +75,16 @@ public class ClassInformation {
 		int indexOfProjectName = path.indexOf(File.separator + projectName);
 		this.unitName = path.substring(indexOfProjectName);
 
+		List<String> sourcepaths = getSourcepathEntries(projectPath);
+		
+		this.sourcepathEntries = sourcepaths.toArray(new String[0]);
+		this.encodings = new String[sourcepathEntries.length];
+		for (int i = 0; i < encodings.length; i++) {
+			encodings[i] = "UTF-8";
+		}
+	}
+
+	public static List<String> getSourcepathEntries(String projectPath) {
 		List<String> sourcepaths = new ArrayList<>();
 		String src = projectPath + String.format("%csrc", File.separatorChar);
 		String src_main_java = projectPath
@@ -92,13 +102,7 @@ public class ClassInformation {
 			if (!src_main_java_exists && !src_test_java_exists)
 				sourcepaths.add(src);
 		}
-		
-		
-		this.sourcepathEntries = sourcepaths.toArray(new String[0]);
-		this.encodings = new String[sourcepathEntries.length];
-		for (int i = 0; i < encodings.length; i++) {
-			encodings[i] = "UTF-8";
-		}
+		return sourcepaths;
 	}
 
 	public String getPath() {

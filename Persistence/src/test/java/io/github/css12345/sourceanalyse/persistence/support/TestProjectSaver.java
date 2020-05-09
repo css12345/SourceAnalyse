@@ -27,18 +27,18 @@ public class TestProjectSaver {
 		@Bean
 		public Project testProject1() {
 			Project testProject1 = new Project();
-			testProject1.setPath("file:D:\\tmp\\fastjson\\1.1.44\\fastjson-1.1.44");
-			testProject1.setWantedPackageNames(new HashSet<>(new ArrayList<>(Arrays.asList("com.alibaba.fastjson"))));
+			testProject1.setPath("file:D:\\tmp\\groovy");
+			//testProject1.setWantedPackageNames(new HashSet<>(new ArrayList<>(Arrays.asList("com.alibaba.fastjson"))));
 			return testProject1;
 		}
 		
-		@Bean
-		public Project testProject2() {
-			Project testProject2 = new Project();
-			testProject2.setPath("file:D:\\tmp\\fastjson\\1.1.157\\fastjson-1.1.157");
-			testProject2.setWantedPackageNames(new HashSet<>(new ArrayList<>(Arrays.asList("com.alibaba.fastjson"))));
-			return testProject2;
-		}
+//		@Bean
+//		public Project testProject2() {
+//			Project testProject2 = new Project();
+//			testProject2.setPath("file:D:\\tmp\\fastjson\\1.1.157\\fastjson-1.1.157");
+//			testProject2.setWantedPackageNames(new HashSet<>(new ArrayList<>(Arrays.asList("com.alibaba.fastjson"))));
+//			return testProject2;
+//		}
 	}
 	
 	@Autowired
@@ -47,12 +47,12 @@ public class TestProjectSaver {
 	@Autowired
 	private Project testProject1;
 	
-	@Autowired
-	private Project testProject2;
+//	@Autowired
+//	private Project testProject2;
 	
 	@Test
 	public void testSaveProject() {
 		projectSaver.saveProject(testProject1);
-		projectSaver.saveProject(testProject2);
+		//projectSaver.saveProject(testProject2);
 	}
 }

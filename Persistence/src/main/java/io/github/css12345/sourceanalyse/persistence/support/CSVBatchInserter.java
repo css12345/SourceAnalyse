@@ -271,7 +271,7 @@ public class CSVBatchInserter implements InitializingBean {
 			}
 			if (methodFile.createNewFile()) {
 				methodHeaderAdded = false;
-				write(Collections.emptyList());
+				writeMethod(Collections.emptyList());
 			} else {
 				methodHeaderAdded = true;
 			}

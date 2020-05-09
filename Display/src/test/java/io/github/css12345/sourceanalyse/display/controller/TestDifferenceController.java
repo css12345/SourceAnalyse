@@ -17,16 +17,16 @@ import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
 public class TestDifferenceController {
 	@Autowired
 	private DifferenceDao differenceDao;
-	
+
 	@Autowired
 	private ProjectDao projectDao;
 
 	@Test
 	public void testCompareFiles() {
-		Project project1 = projectDao
-				.getProjectById(ProjectIDUtils.getIDByProjectPath("D:\\tmp\\fastjson\\1.1.44\\fastjson-1.1.44"));
-		Project project2 = projectDao
-				.getProjectById(ProjectIDUtils.getIDByProjectPath("D:\\tmp\\fastjson\\1.1.157\\fastjson-1.1.157"));
+		final String id1 = ProjectIDUtils.getIDByProjectPath("D:\\tmp\\fastjson\\1.1.44\\fastjson-1.1.44");
+		Project project1 = projectDao.getProjectById(id1);
+		final String id2 = ProjectIDUtils.getIDByProjectPath("D:\\tmp\\fastjson\\1.1.157\\fastjson-1.1.157");
+		Project project2 = projectDao.getProjectById(id2);
 		List<String> filePaths = new ArrayList<>(
 				Arrays.asList("\\fastjson-1.1.44\\src\\main\\java\\com\\alibaba\\fastjson\\JSON.java",
 						"\\fastjson-1.1.44\\src\\main\\java\\com\\alibaba\\fastjson\\JSONArray.java",
@@ -52,6 +52,6 @@ public class TestDifferenceController {
 			filePaths.set(i, filePath);
 		}
 
-		differenceDao.compareFiles(project1, project2, filePaths);
+		differenceDao.compareFiles(project1, project2, filePaths, String.format("%s-%s.json", id1, id2));
 	}
 }

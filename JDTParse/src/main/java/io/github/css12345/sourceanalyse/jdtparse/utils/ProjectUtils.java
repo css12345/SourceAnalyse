@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.github.css12345.sourceanalyse.jdtparse.entity.ClassInformation;
 import io.github.css12345.sourceanalyse.jdtparse.entity.Project;
 
 public class ProjectUtils {
@@ -51,27 +52,15 @@ public class ProjectUtils {
 	public static List<File> findSuffixFiles(Project project, String suffix) {
 		Map<String, Project> allProjects = getAllProjectsMap(project);
 
-		File rootFile = new File(project.getPath());
-		List<File> suffixLikeFiles = getAllSuffixFiles(rootFile, suffix);
-		// may be some module did not in root project directory
+		List<File> suffixLikeFiles = new ArrayList<>();
 		for (String path : allProjects.keySet()) {
-			if (!path.startsWith(project.getPath()))
-				suffixLikeFiles.addAll(getAllSuffixFiles(new File(path), suffix));
+			List<String> sourcepathEntries = ClassInformation.getSourcepathEntries(path);
+			for (String sourcepathEntry : sourcepathEntries) {
+				addSuffixFiles(new File(sourcepathEntry), suffixLikeFiles, suffix);
+			}
 		}
 		
 		return suffixLikeFiles;
-	}
-
-	/**
-	 * recursively get all files in rootFile end with suffix
-	 * @param rootFile to be find's file
-	 * @param suffix file name end with
-	 * @return a list contains all fit files
-	 */
-	public static List<File> getAllSuffixFiles(File rootFile, String suffix) {
-		List<File> suffixFiles = new ArrayList<>();
-		addSuffixFiles(rootFile, suffixFiles, suffix);
-		return suffixFiles;
 	}
 	
 	private static void addSuffixFiles(File rootFile, List<File> suffixFiles, String suffix) {
@@ -80,7 +69,7 @@ public class ProjectUtils {
 			if (subFile.isDirectory())
 				addSuffixFiles(subFile, suffixFiles, suffix);
 			else {
-				if (subFile.getName().endsWith(suffix) && subFile.getAbsolutePath().contains("src"))
+				if (subFile.getName().endsWith(suffix))
 					suffixFiles.add(subFile);
 			}
 		}

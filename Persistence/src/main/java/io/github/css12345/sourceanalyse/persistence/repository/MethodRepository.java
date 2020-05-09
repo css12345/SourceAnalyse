@@ -9,9 +9,12 @@ import io.github.css12345.sourceanalyse.persistence.entity.Method;
 
 public interface MethodRepository extends Neo4jRepository<Method, String> {
 	List<Method> findByFilePath(String filePath);
-	
+
 	Method findByBriefMethodInformationAndVersion(String briefMethodInformation, String version);
-	
+
 	@Query("match (invocatedMethod:Method)<-[:INVOCATE]-(method:Method) where invocatedMethod.briefMethodInformation = {briefMethodInformation} and invocatedMethod.version = {version} return method")
 	List<Method> getRelatedMethods(String briefMethodInformation, String version);
+
+	@Query("match(method:Method)-[:CONTAIN]->(rootNode:ASTNode)-[:CHILD*]->(childNode:ASTNode) where method.filePath = {filePath} detach delete method, rootNode, childNode")
+	void deleteAllByFilePath(String filePath);
 }
