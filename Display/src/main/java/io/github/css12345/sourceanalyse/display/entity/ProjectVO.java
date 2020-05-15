@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -171,19 +171,24 @@ public class ProjectVO {
 			moduleVO.setParentProjectPath(project.getPath());
 
 			Map<String, String> parentClassQualifiedNameLocationMap = project.getClassQualifiedNameLocationMap();
-			Map<String, String> locationClassQualifiedNameMap = new HashMap<>();
+			Map<String, List<String>> locationClassQualifiedNamesMap = new HashMap<>();
 			for (Entry<String, String> entry : parentClassQualifiedNameLocationMap.entrySet()) {
-				locationClassQualifiedNameMap.put(entry.getValue(), entry.getKey());
+				if (!locationClassQualifiedNamesMap.containsKey(entry.getValue()))
+					locationClassQualifiedNamesMap.put(entry.getValue(), new ArrayList<>());
+				List<String> classes = locationClassQualifiedNamesMap.get(entry.getValue());
+				classes.add(entry.getKey());
+				locationClassQualifiedNamesMap.put(entry.getValue(), classes);
 			}
 			List<File> suffixLikeJavaFiles = ProjectUtils.findSuffixLikeJavaFiles(module);
 			Map<String, String> moduleClassQualifiedNameLocationMap = new HashMap<>();
 			for (File file : suffixLikeJavaFiles) {
-				if (!locationClassQualifiedNameMap.containsKey(file.getAbsolutePath()))
-					throw new IllegalStateException(String.format(
-							"parent project %s 's classQualifiedNameLocationMap doesn't contains module %s 's file %s",
-							project.getPath(), module.getPath(), file.getAbsolutePath()));
-				
-				moduleClassQualifiedNameLocationMap.put(locationClassQualifiedNameMap.get(file.getAbsolutePath()), file.getAbsolutePath());
+				if (!locationClassQualifiedNamesMap.containsKey(file.getAbsolutePath())) {
+					continue;
+				}
+				List<String> classes = locationClassQualifiedNamesMap.get(file.getAbsolutePath());
+				for (String c : classes) {
+					moduleClassQualifiedNameLocationMap.put(c, file.getAbsolutePath());
+				}
 			}
 			module.setClassQualifiedNameLocationMap(moduleClassQualifiedNameLocationMap);
 			moduleVO.setClassQualifiedNameLocationMap(moduleClassQualifiedNameLocationMap);
